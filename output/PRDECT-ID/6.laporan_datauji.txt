@@ -1,0 +1,25 @@
+LAPORAN PERSIAPAN DATA UJI DATASET PRDECT-ID
+==================================================
+
+Total data input         : 5,181
+Rasio split              : 80:20 (train:test)
+Random state             : 42
+Metode split             : Stratified by Sentiment_Label (menjaga proporsi setiap kelas sentimen dikedua bagian)
+
+──────────
+DATA TRAIN
+──────────
+  Total baris                 : 4,144
+  Distribusi Sentiment_Label  :
+    Positive     : 1934 (46.7%)
+    Negative     : 1845 (44.5%)
+    Neutral      : 365 (8.8%)
+
+──────────
+DATA TEST
+──────────
+  Total baris                : 1,037
+  Distribusi Sentiment_Label :
+    Positive     : 484 (46.7%)
+    Negative     : 462 (44.6%)
+    Neutral      : 91 (8.8%)

@@ -1,0 +1,11 @@
+LAPORAN CLEANING DATASET DIPAWIDIA E-COMMERCE REVIEWS
+========================================
+Total data awal          : 11,606
+Duplikat dihapus         : 4
+Review kosong dihapus    : 0
+Label inkonsisten hapus  : 400
+Total data setelah       : 10,781
+Total terhapus           : 825
+Persentase noise awal    : 4.44%
+Persentase noise akhir   : 7.11%
+KPI noise < 10%          : Terpenuhi

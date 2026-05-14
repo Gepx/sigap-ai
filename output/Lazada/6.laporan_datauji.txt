@@ -1,0 +1,37 @@
+LAPORAN PERSIAPAN DATA UJI DATASET LAZADA INDONESIAN REVIEWS
+============================================================
+
+Total data awal               : 42,790 baris
+Baris dihapus (teks kosong)   : 0
+Total data bersih             : 42,790 baris
+
+BALANCING
+  Negative     target    5000 | tersedia    3625 | diambil    3625
+  Neutral      target    4000 | tersedia    1741 | diambil    1741
+  Positive     target   10000 | tersedia   37424 | diambil   10000
+  Total data balanced         : 15,366
+  Catatan                     : Rating_Score dan Sentiment_Label asli tidak diubah
+
+KONFIGURASI SPLIT
+  Rasio train : test           : 80 : 20
+  Stratifikasi                 : Sentiment_Label
+  Random state                 : 42
+
+HASIL SPLIT
+  Total data train             : 12,292 baris
+  Total data test              : 3,074 baris
+
+DISTRIBUSI SENTIMENT - DATA BALANCED
+  Positive     :   10000 (65.1%)
+  Negative     :    3625 (23.6%)
+  Neutral      :    1741 (11.3%)
+
+DISTRIBUSI SENTIMENT - DATA TRAIN
+  Positive     :    7999 (65.1%)
+  Negative     :    2900 (23.6%)
+  Neutral      :    1393 (11.3%)
+
+DISTRIBUSI SENTIMENT - DATA TEST
+  Positive     :    2001 (65.1%)
+  Negative     :     725 (23.6%)
+  Neutral      :     348 (11.3%)

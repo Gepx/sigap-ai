@@ -1,0 +1,55 @@
+LAPORAN PREPROCESSING DATASET DIPAWIDIA E-COMMERCE REVIEWS
+==================================================
+
+Total data diproses           : 10,781 baris
+ Statistik Panjang Teks
+  Rata-rata sebelum           : 15.7 kata
+  Rata-rata sesudah           : 9.06 kata
+  Reduksi token rata-rata     : 42.3%
+  Baris kosong pasca proses   : 18
+
+Tahapan Preprocessing:
+  1. Lowercase
+  2. Hapus karakter non-alfanumerik
+  3. Hapus angka berdiri sendiri
+  4. Hapus spasi berlebih
+  5. Normalisasi slang (152 entri)
+  6. Pengecualian stemming (62 kata)
+  7. Stopword removal (877 kata total)
+  8. Stemming (PySastrawi)
+
+Is_Sarcasm                     :
+  Terdeteksi sarkasme         : 241
+  Tidak sarkasme              : 10,540
+
+Sentiment_Label               :
+  Positive     :   5071 (47.0%)
+  Negative     :   4454 (41.3%)
+  Neutral      :   1256 (11.7%)
+Review_Aspect                 :
+  Bentuk       :   5021 (46.6%)
+  Lainnya      :   3907 (36.2%)
+  Harga        :   1036 (9.6%)
+  Rasa         :    817 (7.6%)
+Crisis_Flag                   :
+  No           :   9453 (87.7%)
+  Yes          :   1328 (12.3%)
+Business_Category             :
+  Lainnya                   :   5343 (49.6%)
+  Elektronik                :   4128 (38.3%)
+  Fashion                   :    613 (5.7%)
+  Perabotan                 :    471 (4.4%)
+  F&B                       :    197 (1.8%)
+  Kesehatan                 :     29 (0.3%)
+
+Kolom Final:
+  - Review_Text
+  - Review_Text_Processed
+  - Review_Date
+  - Rating_Score
+  - Platform_Source
+  - Sentiment_Label
+  - Review_Aspect
+  - Crisis_Flag
+  - Business_Category
+  - Is_Sarcasm

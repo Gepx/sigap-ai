@@ -1,0 +1,19 @@
+LAPORAN EKSPLORASI DATASET GOOGLE MAPS REVIEWS
+==================================================
+Total baris mentah        : 10,864
+Total kolom mentah        : 22
+Baris dengan teks ulasan  : 7,283
+Rating 1-5 valid          : 10,864
+Jumlah restoran/tempat    : 16
+
+Mapping kolom ke struktur label proyek:
+  Review_Text          : text -> teks ulasan, fallback textTranslated
+  Review_Date          : publishedAtDate -> tanggal ulasan
+  Rating_Score         : stars -> rating 1-5
+  Platform_Source      : reviewOrigin -> Google Maps
+  Sentiment_Label      : dibuat dari Rating_Score
+  Review_Aspect        : deteksi keyword dari Review_Text
+  Crisis_Flag          : rating <= 2 dan keyword krisis
+  Business_Category    : diisi otomatis F&B
+  Is_Sarcasm           : deteksi dari sentimen negatif dan keyword positif kuat
+  Business_Name        : title -> nama restoran/tempat

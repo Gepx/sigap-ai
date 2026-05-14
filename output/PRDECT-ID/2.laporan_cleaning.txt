@@ -1,0 +1,10 @@
+LAPORAN CLEANING DATASET PRDECT-ID
+==============================
+Total data awal          : 5,400
+Duplikat dihapus         : 7
+Review kosong dihapus    : 0
+Total data setelah       : 5,181
+Total terhapus           : 219
+Persentase noise awal    : 0.87%
+Persentase noise akhir   : 4.06%
+KPI noise < 10%          : Terpenuhi

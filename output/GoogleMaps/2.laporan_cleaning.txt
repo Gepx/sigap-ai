@@ -1,0 +1,10 @@
+LAPORAN CLEANING DATASET GOOGLE MAPS REVIEWS
+=============================================
+Total data awal             : 10,864
+Review_Text kosong dihapus  : 3,581
+Rating tidak valid dihapus  : 0
+Duplikat dihapus            : 0
+Total data setelah cleaning : 7,283
+Total terhapus              : 3,581
+Persentase terhapus         : 32.96%
+Catatan                     : Rating_Score tetap memakai stars asli.

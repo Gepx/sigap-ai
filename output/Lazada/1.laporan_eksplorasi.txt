@@ -1,0 +1,27 @@
+LAPORAN EKSPLORASI DATASET LAZADA INDONESIAN REVIEWS
+=======================================================
+Total review mentah          : 203,787
+Total item produk            : 10,942
+Review dengan teks valid     : 109,355
+Rating 1-5 valid             : 203,787
+Data usable                  : 109,355
+Kecocokan itemId             : 100.0%
+
+Distribusi rating data usable:
+  Rating 1 : 7214 (6.6%)
+  Rating 2 : 2237 (2.0%)
+  Rating 3 : 4535 (4.1%)
+  Rating 4 : 10937 (10.0%)
+  Rating 5 : 84432 (77.2%)
+
+Mapping kolom ke struktur label proyek:
+  Review_Text          : reviewContent + fallback reviewTitle
+  Review_Date          : boughtDate, fallback retrievedDate
+  Rating_Score         : rating
+  Platform_Source      : diisi Lazada
+  Sentiment_Label      : dibuat dari Rating_Score
+  Review_Aspect        : deteksi keyword dari Review_Text
+  Crisis_Flag          : rating <= 2 dan keyword krisis
+  Business_Category    : Elektronik
+  Is_Sarcasm           : deteksi dari sentimen negatif dan keyword positif kuat
+  Product_Name         : join items.name berdasarkan itemId

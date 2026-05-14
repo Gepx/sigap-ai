@@ -1,0 +1,18 @@
+LAPORAN PERSIAPAN DATA UJI GOOGLE MAPS
+==============================================
+Jumlah data train: 834
+Jumlah data uji: 209
+
+Distribusi Sentiment_Label data train:
+Sentiment_Label
+Positive    824
+Neutral       7
+Negative      3
+
+Distribusi Sentiment_Label data uji:
+Sentiment_Label
+Positive    206
+Neutral       2
+Negative      1
+
+Split: 80:20, stratified by Sentiment_Label, random_state=42.

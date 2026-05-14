@@ -1,0 +1,20 @@
+LAPORAN PREPROCESSING DATASET PRDECT-ID
+==================================================
+
+Distribusi Is_Sarcasm:
+  No           : 4853 (93.7%)
+  Yes          : 328 (6.3%)
+Total data input         : 5,181
+Total data output        : 5,181
+Review kosong dihapus    : 0
+Rata-rata kata processed : 10.1
+Minimum kata             : 1
+Maksimum kata            : 116
+
+Proses yang dilakukan:
+  1. Lowercase
+  2. Hapus karakter non-alfanumerik
+  3. Hapus angka
+  4. Normalisasi slang (kamus custom)
+  5. Stopword removal (PySastrawi + custom)
+  6. Stemming (PySastrawi)

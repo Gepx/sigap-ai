@@ -1,0 +1,36 @@
+LAPORAN LABELING DATASET PRDECT-ID
+========================================
+Total data berlabel      : 5,181
+
+Distribusi Sentiment_Label:
+  Positive     : 2418
+  Negative     : 2307
+  Neutral      : 456
+
+Distribusi Review_Aspect:
+  Bentuk       : 2914
+  Lainnya      : 1493
+  Harga        : 401
+  Rasa         : 373
+
+Distribusi Crisis_Flag:
+  No           : 4086
+  Yes          : 1095
+
+Distribusi Business_Category:
+  Elektronik                : 987
+  Hobi & Hiburan            : 830
+  Fashion                   : 779
+  Kesehatan & Kecantikan    : 582
+  Perabotan                 : 391
+  F&B                       : 382
+  Lainnya                   : 283
+  Ibu & Bayi                : 196
+  Perlengkapan Kantor       : 192
+  Perawatan Hewan           : 192
+  Kerajinan & Pesta         : 186
+  Otomotif                  : 181
+
+Distribusi Is_Sarcasm:
+  No           : 4853
+  Yes          : 328

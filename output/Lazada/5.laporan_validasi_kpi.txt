@@ -1,0 +1,10 @@
+LAPORAN VALIDASI KPI DATASET LAZADA INDONESIAN REVIEWS
+=======================================================
+
+Total data divalidasi         : 42,790 baris
+
+KPI 1 Noise                   : 8.64% -> LULUS
+KPI 2 Konsistensi             : 100.0% -> LULUS
+KPI 3 Kelengkapan             : 100.0% -> LULUS
+
+SEMUA KPI TERPENUHI

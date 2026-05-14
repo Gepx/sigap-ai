@@ -1,0 +1,29 @@
+LAPORAN LABELING DATASET LAZADA INDONESIAN REVIEWS
+==================================================
+Total data berlabel      : 43,021
+
+Distribusi Sentiment_Label:
+  Positive     : 37627
+  Negative     : 3639
+  Neutral      : 1755
+
+Distribusi Rating_Score:
+  Rating 1    : 2791
+  Rating 2    : 848
+  Rating 3    : 1755
+  Rating 4    : 4464
+  Rating 5    : 33163
+
+Distribusi Review_Aspect:
+  Lainnya      : 27288
+  Bentuk       : 7406
+  Rasa         : 4540
+  Harga        : 3787
+
+Distribusi Crisis_Flag:
+  No           : 41415
+  Yes          : 1606
+
+Distribusi Is_Sarcasm:
+  No           : 43010
+  Yes          : 11

@@ -1,0 +1,143 @@
+1. eksplorasi.py - Mengenal Dataset
+Tahap pertama sebelum menyentuh data, script ini membaca PRDECT-ID_Dataset.csv dan menghasilkan laporan dengan kondisi awal:
+
+* Total 5.400 baris dan 11 kolom
+* Missing values        -> 0 (tidak ada)                      = Mengecek apakah ada field penting yang kosong di setiap kolom,
+                                                                hasilnya dihitung dalam persentase untuk dibandingkan dengan KPI Kelengkapan ≥ 95%.
+* Duplikat              -> 7 baris                            = Mencari baris yang isi nya sama dari kolom pertama hingga kolom terakhir.
+* Distribusi sentimen   -> hanya Positive & Negative (belum ada Neutral)
+* Distribusi Kategori   -> 29 Kategori                         = Masing-masing berisikan ±200 data 
+* Analisis panjang teks -> <10 karakter yang berpotensi noise = Penentuan threshold ditahap cleaning
+* Output yang dihasilkan : output/PRDECT-ID/
+    PRDECT-ID_Dataset.csv    -> dataset asli
+    laporan_eksplorasi.txt   -> ringkasan kondisi awal dataset
+========================================================================================================================================================
+
+2. cleaning.py - Membersihkan Dataset
+Menghapus semua data kotor agar model tidak belajar dari data yang salah:
+
+* Cek konidisi sebelum cleaning
+* Menghapus duplikat                   = Total data awal 5.400 baris, setelah duplikat dihapus menjadi 5.393 baris
+* Menghapus review kosong              = Menghapus baris yang kolom Customer Review-nya kosong atau NaN, review kosong tidak bisa dianalisis.
+* Membersihkan teks                    = lowercase, hapus url, hapus mention dan hastag, hapus karakter khusus, hapus spasi berlebihan, dan hapus angka berdiri sendiri.
+* Menghapus review terlalu pendek      = Menghapus review yang kurang dari 3 kata. Total data awal 5.400 baris, setelah dihapus tersisa 5.181 baris dengan noise 4.06%
+* Distribusi sentimen setelah cleaning = Mengecek apakah distribusi positif dan negatif masih seimbang setelah data dihapus. Positif 2.418 (46.7%), negatif 2.307 (44.5%)
+* Output yang dihasilkan : output/PRDECT-ID/
+    dataset_cleaning.csv    -> dataset bersih tanpa duplikat dan noise
+    laporan_cleaning.txt    -> ringkasan proses cleaning dan distribusi sentimen setelah cleaning
+===========================================================================================================================================================================
+
+3. labeling.py - Melengkapi Label
+Labeling adalah tahap melengkapi dan memetakan kolom dataset keformat yang dibutuhkan proyek
+
+* Review teks       = Rename dari Customer Review Clean menjadi Review Text
+* Review date       = Tidak tersedia, solusinya disi dengan unknown untuk semua baris
+* Rating score      = Rename dari kolom Customer Rating menjadi Rating Score yang berisi bintang/rating 1 sampai 5 dari pembeli, sebagai dasar penentuan sentimen_label
+* Platfrom source   = Tidak tersediam, solusinya diisi dengan dari Tokopedia untuk semua baris
+* Sentimen label    = Kombinasi dari rating score dan label sentimen asli, rating 1-2 negatif (eksplisit dari rating), 3 netral (menambahkan label netral karena tidak ada di data asli), 4-5 positf (eksplisit dari rating)
+                    hasil distribusinya, positif 2.418 (46.7%), negatif 2.307 (44.5%), dan netral 456 (8.8%)
+* Review aspect     = Mendeteksi ulasan secara otomatis berdasarkan keyword yang muncul di teks, dengan 29 keyword rasa, 25 keyword harga, 87 keyword bentuk
+                    dengan hasil distribusi, bentuk 2.914 (56.2%), lainnya 1.493 (28.8%), harga 401 (7.7%), rasa 373 (7.7%)
+* Crisis flag       = Menandai ulasanyang berpotensi krisis untuk Early warning sistem, dengan 34 keyword krisis, dan logika kombinasi dua kondisi sekaligus
+                    Rating ≤ 2  AND  ada keyword krisis di teks -> Yes
+                    Selainnya                                   ->  No
+                    dengan hasil distribusi No 4.086 (78.9%) review normal, dan Yes 1.095 (21.1%) review krisis
+*Business category  = Memetakan 29 kategori produk asli dari dataset menjadi 12 kategori utama agar lebih relevan dengan sentimen, dengan hasil distribusi :
+                     Food and Drink, Kitchen             ->  F&B                    382
+                     Computers, Phones, Camera           ->  Elektronik             987
+                     Women's, Men's, Muslim Fashion      ->  Fashion                779
+                     Beauty, Body Care, Health           ->  Kesehatan & Kecantikan 582
+                     Household, Carpentry                ->  Perabotan              391
+                     Mother and Baby                     ->  Ibu & Bayi             196
+                     Animal Care                         ->  Perawatan Hewan        192
+                     Toys, Movies, Books, Travel, Sport  ->  Hobi & Hiburan         830
+                     Automotive                          ->  Otomotif               181
+                     Office & Stationery                 ->  Perlengkapan Kantor    192
+                     Party Supplies and Craft            ->  Kerajinan & Pesta      186
+                     Precious Metal, Property            ->  Lainnya                283
+* Output yang dihasilkan : output/PRDECT-ID/
+    dataset_labeling.csv    -> dataset berlabel lengkap
+    laporan_labeling.txt    -> dokumentasi distribusi semua label
+================================================================================================================================================================================================================================                   
+
+4. preprocessing.py - Menyiapkan teks untuk model nanti
+Preprocessing adalah tahap mempersiapkan teks ulasan agar bisa diproses oleh model ML, dengan contoh kata "gak bagus" = "tidak bagus" = "tdk bagus"
+tanpa preprocessing model menganggap ketiga kata tersebut yang berbeda-beda, padahal artinya sama, ini yang membuat model bisa boros memori dan kurang akurat dalam kasus sentiment
+
+* Lowercase                        = Mengubah semua teks menjadi huruf kecil, tanpa ini model akan menganggap "Beli" dan "beli" sebagai dua kata yang berbeda.
+* Hapus karakter non-alfanumerik   = Menghapus semua karakter yang bukan selain huruf dan angka
+* Hapus angka yang berdiri sendiri = Menghapus angka yang berdiri sendiri karena tidak bermakna untuk kasus sentimen
+* Hapus spasi berlebihan           = Menghapus dan juga merapikan spasi yang belebihan akibat proses pembersihan sebelumnya
+* Normalisasi kata slang           = Menggantikan kata-kata slang kebentuk baku menggunakan slang_dict, karena ulasan pembeli dipenuhi bahasa informal
+                                     contoh output : "gk bgs tp ongkir gratis" -> "tidak bagus tapi ongkos kirim gratis"
+* Pengecualian stemming            = Sebelum melakukan proses stemming, kata-kata yang diketahui sering salah distem oleh PySastrawi diganti terlebih dahulu secara manual menggunakan exception_dict:
+                                     karena PySastrawi sering tidak sempurna dalam mengenali kata dan algoritma nya kadang memotong awalan/akhiran pada kata tertentu.
+* Stopword removal                 = Menghapus kata-kata yang tidak bermakna untuk analisis sentimen dengan menggunakan dua sumber, stopword bawaan PySastrawi dan stopword hasil custom.
+* Stemming (PySastrawi)            = Mengubah setiap kata kebentuk dasarnya, karena model harus tahu bahwa kata "membeli", "beli", dan "pembelian" adalah makna yang sama
+                                     tanpa stemming, model menghitung ketiganya sebagai fitur kata yang berbeda
+*Stastik hasil preprocessing :
+    Total data output  : 5.181 baris (tidak ada yang hilang)
+    Review kosong      : 0 baris
+    Rata-rata kata     : 10.1 kata per review
+    Minimum kata       : 1 kata
+    Maksimum kata      : 116 kata
+    Median kata        : 8.0 kata
+* Output yang dihasilkan : output/PRDECT-ID/
+    dataset_preprocessing.csv   -> dataset siap latih model
+    laporan_preprocessing.txt  -> dokumentasi proses & statistik
+=====================================================
+
+5. validasi_kpi.py - Membuktikan kualitas dataset
+Validasi KPI ini adalah tahap untuk membuktikan bahwa dataset sudah diproses memenuhi standar kualitas yang telah ditentukan,
+dengan 3 KPI yang divalidasi :
+
+* KPI 1 = Noise data setelah cleaning <10%, mengukur berapa persen data yang terbuang selama proses cleaning, dengan cara hitungnya :
+Noise (%) = (Data Terhapus / Data Awal) × 100
+Data awal           : 5.400
+Data setelah proses : 5.181
+Data terhapus       : 219 baris
+Noise               : (219 / 5.400) × 100 = 4.06%
+
+Target  : <10%
+Hasil   : 4.06%
+Status  : KPI terpenuhi
+
+* KPI 2 = Konsistensi label ≥85%, mengukur seberapa konsisten sentimen label dengan logika yang sudah diterapkan,
+          menggunakan metode cross-check antara rating score dan sentimen label, dengan cara hitungnya :
+Konsistensi (%) = (Label Konsisten / Total Data) × 100
+Total data            : 5.181
+Label konsisten       : 5.181
+Label tidak konsisten : 0
+Konsistensi           : (5.181 / 5.181) × 100 = 100%
+
+Rating 1-2 -> Negatif (eksplisit)
+Rating 3   -> Netral (ditambahkan)
+Rating 4-5 -> Positif (eksplisit)
+
+Target  : ≥85%
+Hasil   : 100%
+Status  : KPI terpenuhi
+
+* KPI 3 = Kelengkapan data ≥95%, mengukur berapa persen field penting yang terisi, dengan cara hitung :
+Kelengkapan (%) = (1 - Missing / Total Cells) × 100
+Total Cells      = Jumlah Baris × Jumlah Kolom Penting
+                 = 5.181 × 8 = 41.448 cells
+Total missing    : 0
+Kelengkapan      : (1 - 0/41.448) × 100 = 100%
+
+Target  : ≥95%
+Hasil   : 100%
+Status  : KPI terpenuhi
+* Output yang dihasilkan : output/PRDECT-ID/
+    laporan_validasi_kpi.txt    -> bukti dokumentasi resmi KPI
+=================================================================================================================
+
+6. persiapan_datauji.py - proses akhir evaluasi data untuk model
+Persiapan ini adalah memisahkan dataset yang sudah bersih, berlabel, dan sudah dipreprocessing menjadi 2 bagian yaitu, data untuk melatih model, dan data untuk menguji model,
+* dengan rasio data split 80:20, 80% untuk melatih model, dan 20% untuk menguji model, dan menggunakan Stratified Split (teknik pemisahan yang dipakai agar proporsi sentimen terjaga).
+* menggunakan random state = 42, angka seed untuk generator acak, fungsinya setiap kali script jalan, hasil splitnya selalu sama
+* Output yang dihasilkan : output/PRDECT-ID/
+    dataset_train.csv      -> 4.144 baris untuk melatih model
+    dataset_test.csv       -> 1.037 baris untuk menguji model
+    laporan_data_uji.txt   -> dokumentasi detail hasil split
+
