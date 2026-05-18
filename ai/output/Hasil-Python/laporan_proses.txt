@@ -38,7 +38,7 @@ Catatan standarisasi awal:
    Train final               : 55,748 baris
    Test final                : 20,988 baris
    Baris kosong setelah proses : 233
-   Waktu proses preprocessing: 11.62 detik
+   Waktu proses preprocessing: 12.21 detik
 
 6. Validasi KPI
    Data terhapus pada saat cleaning  : 42.41%

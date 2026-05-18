@@ -24,7 +24,7 @@ from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFacto
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR   = os.path.abspath(os.path.join(BASE_DIR, ".."))
 DATA_DIR   = os.path.join(ROOT_DIR, "Dataset Ulasan")
-OUTPUT_DIR = os.path.join(ROOT_DIR, "output", "Gabungan-Python")
+OUTPUT_DIR = os.path.join(ROOT_DIR, "output", "Hasil-Python")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 DIPAWIDIA_PATH = os.path.join(DATA_DIR, "Dipawidia E-commerce Reviews", "dipawidia_ecommerce_reviews.csv")
