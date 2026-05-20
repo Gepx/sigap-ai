@@ -1,5 +1,0 @@
-﻿KPI,Target,Nilai,Status
-Data terhapus pada saat cleaning,Informasi,42.41,Bukan KPI
-Noise data setelah cleaning,< 10%,0.0,Terpenuhi
-Konsistensi labeling,>= 85%,100.0,Terpenuhi
-Kelengkapan dataset,>= 95%,100.0,Terpenuhi
