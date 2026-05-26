@@ -17,7 +17,7 @@ export class AuthService {
     const newUser = await this.repository.createUser({
       ...userData,
       password: hashedPassword,
-      // Fallback to role_id 2 if not provided (assuming 2 is a default user role)
+      
       role_id: userData.role_id || 2 
     });
 

@@ -4,7 +4,7 @@ async function main() {
   try {
     console.log("[SETUP] Creating tables in Supabase...");
 
-    // 1. Create permissions table
+
     await db.query(`
       CREATE TABLE IF NOT EXISTS permissions (
         id BIGSERIAL PRIMARY KEY,
@@ -17,7 +17,7 @@ async function main() {
     `);
     console.log("- Created table 'permissions'");
 
-    // 2. Create roles table
+
     await db.query(`
       CREATE TABLE IF NOT EXISTS roles (
         id BIGSERIAL PRIMARY KEY,
@@ -28,7 +28,7 @@ async function main() {
     `);
     console.log("- Created table 'roles'");
 
-    // 3. Create users table
+  
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id BIGSERIAL PRIMARY KEY,
@@ -43,10 +43,10 @@ async function main() {
     `);
     console.log("- Created table 'users'");
 
-    // Seed default roles and permissions
+   
     console.log("[SETUP] Seeding default data...");
 
-    // Insert permissions
+  
     const perm1 = await db.query(`
       INSERT INTO permissions (permission_name, route, method, is_menu)
       VALUES ('Read Auth', '/api/auth/profile', '{"GET"}', true)
@@ -54,8 +54,7 @@ async function main() {
     `);
     const permId = perm1.rows[0].id;
 
-    // Insert roles (Admin with ID 1, User with ID 2)
-    // We force the IDs so they match our logic
+    
     await db.query(`
       INSERT INTO roles (id, role_name, permission_id)
       VALUES 

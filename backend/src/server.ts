@@ -10,23 +10,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true // Allow cookies to be sent
+  credentials: true 
 }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
+
 app.use('/api/auth', authRoutes);
 
-// Health Check
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
-// Error Handling Middleware (should be last)
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
