@@ -4,7 +4,8 @@ import connectDB from "./config/database.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/error.middleware.js";
-import authRoutes from "./modules/auth/auth.route.js";
+import { authMiddleware } from "./middlewares/auth.middleware.js";
+import AuthRouter from "./routes/auth.route.js";
 
 dotenv.config();
 
@@ -13,24 +14,21 @@ const PORT = process.env.PORT || 8080;
 
 await connectDB();
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true,
+};
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-  }),
-);
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use("/api/auth", authRoutes);
+// Auth Route
+app.use("/api/auth", AuthRouter);
 
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
-});
+app.use(authMiddleware);
 
 app.use(errorHandler);
 
