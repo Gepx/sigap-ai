@@ -42,10 +42,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <QueryProvider>
-            {children}
-          </QueryProvider>
-          <Toaster position="bottom-right" richColors />
+          <QueryProvider>{children}</QueryProvider>
+          <Toaster position="top-right" richColors />
         </AuthProvider>
       </body>
     </html>
