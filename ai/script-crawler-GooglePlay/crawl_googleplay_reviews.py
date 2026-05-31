@@ -1,30 +1,170 @@
-# Crawler Google Play Reviews untuk dataset F&B
 import argparse
 import csv
 import re
 from pathlib import Path
 from google_play_scraper import Sort, reviews
 
-# konfig apl google play yang relevan dengan layanan pesan antar makanan
+# keyword layanan food delivery untuk Gofood dan Grabfood
+DELIVERY_KEYWORDS = [
+    "gofood", "go food", "grabfood", "grab food", "makanan", "minuman",
+    "resto", "restoran", "warung", "kedai", "kafe", "cafe", "kuliner",
+    "pesanan makanan", "order makanan", "antar makanan", "delivery makanan",
+    "driver makanan", "pesan makan", "pesen makan", "pesan minum", "pesen minum",
+    "order makan", "order minum", "antar makan", "antar minum", "delivery food",
+    "food delivery", "merchant makanan", "merchant resto", "menu makanan",
+    "menu minuman", "ongkir makanan", "voucher makanan", "promo makanan",
+    "diskon makanan", "makanannya", "minumannya", "pesanan resto", "pesanan warung",
+    "pesanan kuliner", "order resto", "order restoran", "order food", "food order",
+    "delivery resto", "antar pesanan", "kurir makanan", "kurir resto", "mitra resto",
+    "mitra restoran", "merchant food", "menu resto", "menu restoran", "menu kuliner",
+    "harga makanan", "harga minuman", "diskon resto", "promo resto", "voucher resto",
+    "restonya", "restorannya", "warungnya", "kedainya", "menunya"]
+
+
+# kata umum Indonesia untuk menyaring review bahasa asing pada aplikasi f&b resmi
+INDONESIAN_KEYWORDS = [
+    "aku", "anda", "aplikasi", "bagus", "banyak", "beli", "belum", "bisa",
+    "buat", "coba", "dari", "dengan", "dong", "gak", "ga", "harus", "harga",
+    "ini", "jadi", "jangan", "kak", "karena", "kasih", "kenapa", "kok", "lagi",
+    "lama", "lebih", "lumayan", "makanan", "masih", "minuman", "mohon", "nggak",
+    "order", "pakai", "pelayanan", "pembayaran", "pesan", "pesanan", "promo",
+    "resto", "saja", "sangat", "saya", "sudah", "tapi", "tidak", "tolong",
+    "untuk", "yang"]
+
+
+# Keyword f&b untuk astro dan segari karena kategorinya beragam
+GROCERY_FNB_KEYWORDS = [
+    "ayam", "bahan makanan", "bakso", "beras", "buah", "buah-buahan", "daging",
+    "frozen food", "ikan", "makan", "makanan", "minum", "minuman", "roti",
+    "sayur", "sayuran", "sembako", "susu", "telur", "air mineral", "bawang",
+    "bumbu", "cabai", "cabe", "cemilan", "camilan", "cookies", "dapur", "galon",
+    "grocery", "jajanan", "kopi", "kue", "masak", "mie", "minyak", "snack",
+    "soda", "teh", "tepung", "buahnya", "dagingnya", "ikannya", "makanannya",
+    "minumannya", "rotinya", "sayurnya", "susunya", "telurnya", "bahan masakan",
+    "bahan dapur", "bumbu dapur", "buah segar", "sayur segar", "sayur mayur",
+    "daging ayam", "daging sapi", "ikan segar", "makanan beku", "minuman botol",
+    "produk makanan", "produk minuman", "belanja sayur", "belanja buah",
+    "belanja sembako", "belanja bahan makanan", "kualitas sayur", "kualitas buah",
+    "kualitas daging", "stok makanan", "stok minuman", "stok sayur", "stok buah",
+    "bawangnya", "cabainya", "sembakonya", "buah-buahan"]
+
+
+# konfig 11 output csv dan setiap aplikasi tetap memiliki aturan filternya masing masing
 APP_CONFIGS = [
+    # dataset umum gofood dan grabfood: semua rating dengan keyword layanan f&b
     {
-        "app_name": "Gojek / GoFood",
+        "group": "general",
+        "app_name": "Gojek / Gofood",
         "app_id": "com.gojek.app",
         "output": "gofood_googleplay_reviews.csv",
-        "include_keywords": [
-            "gofood", "go food", "makanan", "minuman", "resto", "restoran", "warung", "kedai", "kafe", "cafe",
-            "kuliner", "pesanan makanan", "order makanan", "antar makanan", "delivery makanan", "driver makanan"],},
+        "rating_filter": None,
+        "include_keywords": DELIVERY_KEYWORDS,
+        "require_indonesian": False,
+        "default_max_raw": 20000},
+
     {
-        "app_name": "Grab / GrabFood",
+        "group": "general",
+        "app_name": "Grab / Grabfood",
         "app_id": "com.grabtaxi.passenger",
         "output": "grabfood_googleplay_reviews.csv",
-        "include_keywords": [
-            "grabfood", "grab food", "makanan", "minuman", "resto", "restoran",
-            "warung", "kedai", "kafe", "cafe", "kuliner", "pesanan makanan",
-            "order makanan", "antar makanan", "delivery makanan", "driver makanan"],},]
+        "rating_filter": None,
+        "include_keywords": DELIVERY_KEYWORDS,
+        "require_indonesian": False,
+        "default_max_raw": 20000},
 
+    # dataset netral gofood dan grabfood: rating 3 dengan keyword layanan f&b
+    {
+        "group": "delivery netral",
+        "app_name": "Gojek / Gofood netral",
+        "app_id": "com.gojek.app",
+        "output": "gofood_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": DELIVERY_KEYWORDS,
+        "require_indonesian": False,
+        "default_max_raw": 100000},
 
-# kolom output dibuat supaya mudah untuk load ke dalam sigap-ai.ipynb.
+    {
+        "group": "delivery netral",
+        "app_name": "Grab / Grabfood netral",
+        "app_id": "com.grabtaxi.passenger",
+        "output": "grabfood_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": DELIVERY_KEYWORDS,
+        "require_indonesian": False,
+        "default_max_raw": 100000},
+
+    # dataset netral dari aplikasi resmi f&b Indonesia: rating 3 bahasa Indonesia
+    {
+        "group": "fnb netral",
+        "app_name": "Domino's Pizza Indonesia",
+        "app_id": "com.phonegap.dominos",
+        "output": "dominos_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb netral",
+        "app_name": "Pizza Hut Indonesia",
+        "app_id": "com.pizzahut.phd",
+        "output": "pizzahut_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb netral",
+        "app_name": "Kopi Kenangan Indonesia",
+        "app_id": "com.kopikenangan",
+        "output": "kopikenangan_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb netral",
+        "app_name": "Starbucks Indonesia",
+        "app_id": "com.starbucks.id",
+        "output": "starbucks_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    # kfcku khusus f&b, astro dan segari wajib memiliki keyword grocery f&b
+    {
+        "group": "fnb netral",
+        "app_name": "KFCKU",
+        "app_id": "com.kfc.mobile",
+        "output": "kfcku_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery netral",
+        "app_name": "ASTRO",
+        "app_id": "com.astro.shop",
+        "output": "astro_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000,},
+
+    {
+        "group": "grocery netral",
+        "app_name": "Segari",
+        "app_id": "id.segari.customer",
+        "output": "segari_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000}]
+
 OUTPUT_COLUMNS = [
     "app_name",
     "app_id",
@@ -33,13 +173,10 @@ OUTPUT_COLUMNS = [
     "review_text",
     "rating",
     "review_date",
-    "review_created_version",
     "thumbs_up_count",
-    "reply_content",
-    "replied_at",
     "matched_keywords"]
 
-# normalisasi teks filter keyword F&B
+
 def normalize_text(text):
     if text is None:
         return ""
@@ -47,16 +184,7 @@ def normalize_text(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# mengambil keyword F&B yang muncul di review
-def get_matched_keywords(text, keywords):
-    normalized = normalize_text(text)
-    return [keyword for keyword in keywords if keyword in normalized]
 
-# filter review yang relavan dengan keyword F&B
-def is_food_related(text, keywords):
-    return len(get_matched_keywords(text, keywords)) > 0
-
-# membersihkan review text sebelum ditulis ke csv
 def clean_review_text(text):
     if text is None:
         return ""
@@ -64,17 +192,56 @@ def clean_review_text(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# mengubah datetime dari scraper menjadi string agar aman disimpan ke csv
+
+def get_matched_keywords(text, keywords):
+    normalized = normalize_text(text)
+    return [
+        keyword
+        for keyword in keywords
+        if re.search(rf"\b{re.escape(keyword)}\b", normalized)
+    ]
+
+
+def is_likely_indonesian(text):
+    normalized = normalize_text(text)
+    if len(normalized.split()) < 3:
+        return False
+    return bool(get_matched_keywords(normalized, INDONESIAN_KEYWORDS))
+
+
 def format_datetime(value):
     if value is None:
         return ""
     return str(value)
 
-# mengambil review dari google play lalu memfilter review yang berkaitan dengan F&B
-def crawl_app_reviews(app_config, lang, country, batch_size, max_raw, target_filtered):
+
+def deduplicate_rows(rows):
+    seen_review_ids = set()
+    seen_texts = set()
+    unique_rows = []
+
+    for row in rows:
+        review_id = row.get("review_id", "")
+        review_text = normalize_text(row.get("review_text", ""))
+
+        if review_id and review_id in seen_review_ids:
+            continue
+        if review_text in seen_texts:
+            continue
+
+        if review_id:
+            seen_review_ids.add(review_id)
+        seen_texts.add(review_text)
+        unique_rows.append(row)
+
+    return unique_rows
+
+ # mengambil review googleplay sesuai aturan filter setiap konfig
+def crawl_reviews(app_config, lang, country, batch_size, max_raw, target_filtered):
     collected = []
     continuation_token = None
     raw_seen = 0
+    rating_match_seen = 0
 
     while raw_seen < max_raw and len(collected) < target_filtered:
         current_count = min(batch_size, max_raw - raw_seen)
@@ -92,10 +259,21 @@ def crawl_app_reviews(app_config, lang, country, batch_size, max_raw, target_fil
         raw_seen += len(result)
 
         for item in result:
-            review_text = clean_review_text(item.get("content", ""))
-            matched_keywords = get_matched_keywords(review_text, app_config["include_keywords"])
+            rating = item.get("score", "")
+            rating_filter = app_config["rating_filter"]
+            if rating_filter is not None and str(rating).strip() != str(rating_filter):
+                continue
 
-            if not matched_keywords:
+            rating_match_seen += 1
+            review_text = clean_review_text(item.get("content", ""))
+
+            if app_config["require_indonesian"] and not is_likely_indonesian(review_text):
+                continue
+
+            matched_keywords = get_matched_keywords(
+                review_text,
+                app_config["include_keywords"])
+            if app_config["include_keywords"] and not matched_keywords:
                 continue
 
             collected.append({
@@ -104,83 +282,102 @@ def crawl_app_reviews(app_config, lang, country, batch_size, max_raw, target_fil
                 "review_id": item.get("reviewId", ""),
                 "user_name": item.get("userName", ""),
                 "review_text": review_text,
-                "rating": item.get("score", ""),
+                "rating": rating,
                 "review_date": format_datetime(item.get("at")),
-                "review_created_version": item.get("reviewCreatedVersion", ""),
                 "thumbs_up_count": item.get("thumbsUpCount", ""),
-                "reply_content": clean_review_text(item.get("replyContent", "")),
-                "replied_at": format_datetime(item.get("repliedAt")),
                 "matched_keywords": ", ".join(matched_keywords)})
 
+            collected = deduplicate_rows(collected)
             if len(collected) >= target_filtered:
                 break
+
         if continuation_token is None:
             break
-    return collected, raw_seen
+
+    return deduplicate_rows(collected), raw_seen, rating_match_seen
 
 
 def write_csv(rows, output_path):
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with output_path.open("w", newline="", encoding="utf-8-sig") as file:
         writer = csv.DictWriter(file, fieldnames=OUTPUT_COLUMNS)
         writer.writeheader()
         writer.writerows(rows)
 
-# memparsing argumen command line
+
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Crawler Google Play Reviews untuk GoFood dan GrabFood.")
+        description="Crawler Google Play Reviews untuk seluruh dataset F&B proyek SIGAP AI.")
+
+    parser.add_argument(
+        "--group",
+        choices=["all", "general", "delivery-netral", "fnb-netral", "grocery-netral"],
+        default="all",
+        help="Kelompok dataset yang dicrawl. Default: all")
+
     parser.add_argument(
         "--dataset-dir",
         default=str(Path(__file__).resolve().parents[1] / "dataset"),
         help="Folder output CSV. Default: ../dataset")
+
     parser.add_argument(
         "--lang",
         default="id",
         help="Bahasa review Google Play. Default: id")
+
     parser.add_argument(
         "--country",
         default="id",
         help="Negara Google Play. Default: id")
+        
     parser.add_argument(
         "--batch-size",
         type=int,
         default=200,
         help="Jumlah review mentah per request. Default: 200")
+        
     parser.add_argument(
         "--max-raw",
         type=int,
-        default=20000,
-        help="Maksimal review mentah yang dicek per apl. Default: 20000")
+        default=None,
+        help="Override maksimal review mentah per app. Default mengikuti konfig app")
+
     parser.add_argument(
         "--target-filtered",
         type=int,
         default=5000,
-        help="Target review F&B tersaring per apl. Default: 5000")
+        help="Target maksimal review tersaring per app. Default: 5000")
     return parser.parse_args()
 
-# menjalankan crawler untuk semua apl yang dikonfig
+# menjalankan crawler sesuai kelompok dataset yang dipilih
 def main():
     args = parse_args()
     dataset_dir = Path(args.dataset_dir)
+    selected_configs = [
+        app_config
+        for app_config in APP_CONFIGS
+        if args.group == "all" or app_config["group"] == args.group]
 
-    for app_config in APP_CONFIGS:
-        print(f"Mulai crawl: {app_config['app_name']}")
+    for app_config in selected_configs:
+        max_raw = args.max_raw or app_config["default_max_raw"]
+        print(f"Proses scraping crawl: {app_config['app_name']}")
 
-        rows, raw_seen = crawl_app_reviews(
+        rows, raw_seen, rating_match_seen = crawl_reviews(
             app_config=app_config,
             lang=args.lang,
             country=args.country,
             batch_size=args.batch_size,
-            max_raw=args.max_raw,
+            max_raw=max_raw,
             target_filtered=args.target_filtered)
 
         output_path = dataset_dir / app_config["output"]
         write_csv(rows, output_path)
 
-        print(f"  Review mentah dicek : {raw_seen:,}")
-        print(f"  Review F&B disimpan : {len(rows):,}")
-        print(f"  Output              : {output_path}")
+        print(f"  Review mentah dicek       : {raw_seen:,}")
+        print(f"  Review sesuai rating      : {rating_match_seen:,}")
+        print(f"  Review tersaring disimpan : {len(rows):,}")
+        print(f"  Output                    : {output_path}")
 
 
 if __name__ == "__main__":
