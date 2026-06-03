@@ -1,10 +1,17 @@
 import React from "react";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppSidebar } from "@/components/app-sidebar";
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-w-0">
-      {children}
-    </div>
+    <SidebarProvider defaultOpen={false}>
+      <TooltipProvider>
+        <AppSidebar />
+        <SidebarInset>{children}</SidebarInset>
+      </TooltipProvider>
+    </SidebarProvider>
   );
 };
 
