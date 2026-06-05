@@ -5,7 +5,11 @@ import { useSession } from "next-auth/react";
 import { Upload, FileText, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function UploadContent() {
+interface UploadContentProps {
+  onUpload: (fileName: string) => void;
+}
+
+export default function UploadContent({ onUpload }: UploadContentProps) {
   const { data: session } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -153,7 +157,10 @@ export default function UploadContent() {
                 </button>
               </div>
               <div className="mt-4 flex justify-end">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button 
+                  onClick={() => file && onUpload(file.name)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
                   <Upload className="size-4 mr-2" />
                   Upload Document
                 </Button>
