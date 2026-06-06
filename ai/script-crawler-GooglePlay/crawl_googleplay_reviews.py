@@ -46,14 +46,42 @@ GROCERY_FNB_KEYWORDS = [
     "produk makanan", "produk minuman", "belanja sayur", "belanja buah",
     "belanja sembako", "belanja bahan makanan", "kualitas sayur", "kualitas buah",
     "kualitas daging", "stok makanan", "stok minuman", "stok sayur", "stok buah",
-    "bawangnya", "cabainya", "sembakonya", "buah-buahan"]
+    "bawangnya", "cabainya", "sembakonya", "buah-buahan", "alpukat", "apel",
+    "ayam potong", "bayam", "brokoli", "coklat", "cokelat", "es krim", "gula",
+    "jeruk", "kangkung", "kecap", "kentang", "kerupuk", "kol", "martabak",
+    "mie instan", "nasi", "nugget", "pisang", "sambal", "saos", "saus",
+    "sawi", "sosis", "tahu", "tempe", "tomat", "toping", "topping",
+    "vitamin", "yogurt", "yoghurt", "belanja dapur", "produk segar",
+    "kebutuhan dapur", "kebutuhan masak", "biskuit", "buah potong",
+    "cabai rawit", "cabe rawit", "cereal", "daging beku", "daging segar",
+    "detergen", "gula pasir", "jahe", "jus", "keju", "keripik", "kornet",
+    "kuaci", "lada", "madu", "margarin", "mentega", "milo", "oat", "oregano",
+    "pasta", "pepaya", "permen", "sarden", "selai", "selada", "sirup",
+    "susu cair", "susu uht", "tisu dapur", "udang", "wafer", "zaitun",
+    "bumbu masak", "camilan anak", "kebutuhan makanan", "makanan ringan",
+    "minuman ringan", "produk dapur", "produk segar", "stok dapur"]
 
 
-# konfig 11 output csv dan setiap aplikasi tetap memiliki aturan filternya masing masing
+# keyword merchant f&b untuk aplikasi pengelolaan resto dan pesanan GoFood
+MERCHANT_FNB_KEYWORDS = [
+    "gofood", "go food", "resto", "restoran", "warung", "kedai", "kafe",
+    "cafe", "merchant", "mitra", "mitra gofood", "mitra resto",
+    "mitra restoran", "usaha makanan", "bisnis makanan", "jualan makanan",
+    "jualan minuman", "makanan", "minuman", "menu", "menu makanan",
+    "menu minuman", "harga menu", "stok menu", "varian menu", "order",
+    "pesan", "pesanan", "pesanan masuk", "pesanan makanan", "pesanan resto",
+    "orderan", "orderan masuk", "driver", "driver gofood", "pengemudi",
+    "kurir", "antar makanan", "delivery makanan", "promo", "promo gofood",
+    "voucher", "diskon", "komisi", "saldo", "pencairan", "transaksi",
+    "laporan penjualan", "pendapatan", "pembayaran", "gopay", "qris",
+    "jam buka", "jam operasional", "tutup toko", "buka toko", "outlet",
+    "dapur", "masak", "masakan", "pelanggan", "customer", "rating resto",
+    "ulasan pelanggan"]
+
 APP_CONFIGS = [
-    # dataset umum gofood dan grabfood: semua rating dengan keyword layanan f&b
+    # dataset umum gofood dan grabfood: dengan semua rating dan keyword layanan f&b
     {
-        "group": "general",
+        "group": "delivery-netral",
         "app_name": "Gojek / Gofood",
         "app_id": "com.gojek.app",
         "output": "gofood_googleplay_reviews.csv",
@@ -63,7 +91,7 @@ APP_CONFIGS = [
         "default_max_raw": 20000},
 
     {
-        "group": "general",
+        "group": "delivery-netral",
         "app_name": "Grab / Grabfood",
         "app_id": "com.grabtaxi.passenger",
         "output": "grabfood_googleplay_reviews.csv",
@@ -72,7 +100,7 @@ APP_CONFIGS = [
         "require_indonesian": False,
         "default_max_raw": 20000},
 
-    # dataset netral gofood dan grabfood: rating 3 dengan keyword layanan f&b
+    # dataset netral gofood dan grabfood: dengan rating 3 dan keyword layanan f&b
     {
         "group": "delivery netral",
         "app_name": "Gojek / Gofood netral",
@@ -134,7 +162,7 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
-    # kfcku khusus f&b, astro dan segari wajib memiliki keyword grocery f&b
+    
     {
         "group": "fnb netral",
         "app_name": "KFCKU",
@@ -145,8 +173,180 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
+    # dataset netral tambahan dari aplikasi resmi f&b: dengan rating 3 bahasa Indonesia
     {
-        "group": "grocery netral",
+        "group": "fnb-netral-baru",
+        "app_name": "Fore Coffee",
+        "app_id": "coffee.fore2.fore",
+        "output": "forecoffee_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb-netral-baru",
+        "app_name": "TOMORO Coffee",
+        "app_id": "com.tomoro.indonesia.android",
+        "output": "tomoro_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb-netral-baru",
+        "app_name": "HOKBENAJA",
+        "app_id": "id.co.hokben.revamp",
+        "output": "hokben_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb-netral-baru",
+        "app_name": "Richeese Factory Indonesia",
+        "app_id": "com.richeese.id",
+        "output": "richeese_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb-netral-baru",
+        "app_name": "F&B ID / Chatime Indonesia",
+        "app_id": "com.klg.chatime",
+        "output": "chatime_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb-netral-baru",
+        "app_name": "Burger King Indonesia",
+        "app_id": "burgerking.id.android",
+        "output": "burgerking_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "fnb-netral-baru",
+        "app_name": "McDonald's Indonesia",
+        "app_id": "com.mcdonalds.mobileapp",
+        "output": "mcdonalds_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    # dataset netral tambahan dari aplikasi grocery Indonesia: yang rating 3 dengan keyword f&b
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "Alfagift",
+        "app_id": "com.alfamart.alfagift",
+        "output": "alfagift_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "Klik Indomaret",
+        "app_id": "com.indomaret.klikindomaret",
+        "output": "klikindomaret_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "Sayurbox",
+        "app_id": "com.sayurbox",
+        "output": "sayurbox_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "AlloFresh",
+        "app_id": "id.allofresh.ecommerce",
+        "output": "allofresh_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "ASTRO versi baru",
+        "app_id": "com.astro.shop",
+        "output": "astro_full_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "HappyFresh",
+        "app_id": "com.happyfresh.android",
+        "output": "happyfresh_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "My Super Indo",
+        "app_id": "id.co.superindo.mysuperindo",
+        "output": "superindo_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "Hypermart Online",
+        "app_id": "com.hypermart.mobile",
+        "output": "hypermart_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "LOTTE Mart Mall",
+        "app_id": "com.lmi.indo",
+        "output": "lottemart_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": GROCERY_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
+        "app_name": "GoBiz / GoFood Merchant",
+        "app_id": "com.gojek.resto",
+        "output": "gobiz_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": MERCHANT_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "grocery-netral-baru",
         "app_name": "ASTRO",
         "app_id": "com.astro.shop",
         "output": "astro_netral_googleplay_reviews.csv",
@@ -156,7 +356,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000,},
 
     {
-        "group": "grocery netral",
+        "group": "grocery-netral-baru",
         "app_name": "Segari",
         "app_id": "id.segari.customer",
         "output": "segari_netral_googleplay_reviews.csv",
@@ -198,8 +398,7 @@ def get_matched_keywords(text, keywords):
     return [
         keyword
         for keyword in keywords
-        if re.search(rf"\b{re.escape(keyword)}\b", normalized)
-    ]
+        if re.search(rf"\b{re.escape(keyword)}\b", normalized)]
 
 
 def is_likely_indonesian(text):
@@ -236,7 +435,7 @@ def deduplicate_rows(rows):
 
     return unique_rows
 
- # mengambil review googleplay sesuai aturan filter setiap konfig
+ # mengambil review googleplay sesuai dengan aturan filter setiap konfig
 def crawl_reviews(app_config, lang, country, batch_size, max_raw, target_filtered):
     collected = []
     continuation_token = None
@@ -308,11 +507,11 @@ def write_csv(rows, output_path):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Crawler Google Play Reviews untuk seluruh dataset F&B proyek SIGAP AI.")
+        description="crawler google play reviews untuk semua dataset F&B")
 
     parser.add_argument(
         "--group",
-        choices=["all", "general", "delivery-netral", "fnb-netral", "grocery-netral"],
+        choices=["all", "delivery-netral", "fnb-netral", "grocery-netral", "fnb-netral-baru", "grocery-netral-baru"],
         default="all",
         help="Kelompok dataset yang dicrawl. Default: all")
 
