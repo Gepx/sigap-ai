@@ -261,6 +261,37 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
+    # dataset netral v2 dari aplikasi resmi F&B: tidak menduplikat dataset lama
+    {
+        "group": "fnb-netral-v2",
+        "app_name": "Domino's Pizza Indonesia v2",
+        "app_id": "com.phonegap.dominos",
+        "output": "dominos_netral_v2_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 150000},
+
+    {
+        "group": "fnb-netral-v2",
+        "app_name": "Kopi Kenangan Indonesia v2",
+        "app_id": "com.kopikenangan",
+        "output": "kopikenangan_netral_v2_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 150000},
+
+    {
+        "group": "fnb-netral-v2",
+        "app_name": "Fore Coffee v2",
+        "app_id": "coffee.fore2.fore",
+        "output": "forecoffee_netral_v2_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": [],
+        "require_indonesian": True,
+        "default_max_raw": 150000},
+
     # dataset netral v2 dari aplikasi food delivery: tidak menduplikat dataset lama
     {
         "group": "fnb-netral-ekstra",
@@ -616,7 +647,7 @@ def parse_args():
 
     parser.add_argument(
         "--group",
-        choices=["all", "delivery-netral", "fnb-netral", "grocery-netral", "fnb-netral-baru", "fnb-netral-ekstra", "grocery-netral-baru", "merchant-netral", "merchant-negatif"],
+        choices=["all", "delivery-netral", "fnb-netral", "grocery-netral", "fnb-netral-baru", "fnb-netral-v2", "fnb-netral-ekstra", "grocery-netral-baru", "merchant-netral", "merchant-negatif"],
         default="all",
         help="Kelompok dataset yang dicrawl. Default: all")
 
