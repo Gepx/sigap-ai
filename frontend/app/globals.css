@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "../node_modules/shadcn/dist/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -49,29 +49,29 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: #f4f9f6;
+  --foreground: #1a2e26;
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: #1a2e26;
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: #1a2e26;
+  --primary: #00b074;
+  --primary-foreground: #ffffff;
+  --secondary: #e8fff4;
+  --secondary-foreground: #1a2e26;
+  --muted: #e9f2ed;
+  --muted-foreground: #64756f;
+  --accent: #e8fff4;
+  --accent-foreground: #1a2e26;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: color-mix(in srgb, #1a2e26 12%, transparent);
+  --input: color-mix(in srgb, #1a2e26 14%, transparent);
+  --ring: #00b074;
+  --chart-1: #00b074;
+  --chart-2: #f2c94c;
+  --chart-3: #f25f5c;
+  --chart-4: #4f8cff;
+  --chart-5: #1a2e26;
   --radius: 0.625rem;
   --sidebar: oklch(0.99 0.002 160);
   --sidebar-foreground: oklch(0.25 0.04 160);
@@ -127,4 +127,33 @@
   html {
     @apply font-sans;
   }
+}
+
+@keyframes sigap-dashboard-float {
+  0%,
+  100% {
+    transform: translateY(0) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(1.5deg);
+  }
+}
+
+@keyframes sigap-bar-grow {
+  from {
+    transform: scaleX(0.2);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.sigap-dashboard-float {
+  animation: sigap-dashboard-float 7s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.sigap-bar-grow {
+  animation: sigap-bar-grow 1.1s ease-out both;
+  transform-origin: left center;
 }
