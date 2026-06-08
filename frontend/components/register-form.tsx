@@ -72,10 +72,6 @@ export function RegisterForm({
         <CardContent className="p-0">
           <form onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8">
             <FieldGroup>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#00B074]/20 bg-[#E8FFF4] px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#007A51]">
-                <ShieldCheck className="size-3.5" />
-                Safe registration
-              </div>
               <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-black tracking-tight text-[#1A2E26]">
                   Create an account

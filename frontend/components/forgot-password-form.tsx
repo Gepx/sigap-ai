@@ -23,7 +23,7 @@ import api from "@/lib/api";
 import { errorHandler } from "@/lib/handler/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Eye, EyeOff, Mailbox, ChevronLeft } from "lucide-react";
+import { Eye, EyeOff, Mailbox } from "lucide-react";
 
 export function ForgotPasswordForm({
   className,
@@ -69,18 +69,15 @@ export function ForgotPasswordForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 md:p-8">
+      <Card className="overflow-hidden border border-[#1A2E26]/10 bg-white/92 p-0 shadow-2xl shadow-[#00B074]/10 backdrop-blur">
+        <CardContent className="p-0">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8">
             <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center pb-2">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
-                  <Mailbox className="h-6 w-6 text-primary" />
-                </div>
-                <h1 className="text-2xl font-bold text-slate-800">
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-black tracking-tight text-[#1A2E26]">
                   Reset password
                 </h1>
-                <p className="text-balance text-muted-foreground text-sm">
+                <p className="max-w-md text-sm leading-7 text-[#1A2E26]/62">
                   Please kindly set your new password
                 </p>
               </div>
@@ -94,7 +91,7 @@ export function ForgotPasswordForm({
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                  <p className="text-sm text-[#B43331]">{errors.email.message}</p>
                 )}
               </Field>
 
@@ -119,7 +116,7 @@ export function ForgotPasswordForm({
                   </button>
                 </div>
                 {errors.newPassword && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-sm text-[#B43331]">
                     {errors.newPassword.message}
                   </p>
                 )}
@@ -148,16 +145,16 @@ export function ForgotPasswordForm({
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-sm text-[#B43331]">
                     {errors.confirmPassword.message}
                   </p>
                 )}
               </Field>
 
-              <Field className="pt-2">
+              <Field>
                 <Button
                   type="submit"
-                  className="w-full text-base font-medium h-11"
+                  className="h-11 w-full rounded-full bg-[#00B074] text-white shadow-lg shadow-[#00B074]/20 transition hover:-translate-y-0.5 hover:bg-[#079968]"
                   disabled={isPending}
                 >
                   {isPending ? "Changing..." : "Reset password"}
@@ -167,9 +164,8 @@ export function ForgotPasswordForm({
               <FieldDescription className="text-center mt-4">
                 <Link
                   href="/login"
-                  className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                  className="font-semibold text-[#007A51] underline-offset-4 hover:underline"
                 >
-                  <ChevronLeft className="mr-1 h-4 w-4" />
                   Back to Login
                 </Link>
               </FieldDescription>

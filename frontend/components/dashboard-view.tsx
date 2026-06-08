@@ -101,175 +101,91 @@ export default function DashboardView({ fileName }: { fileName: string }) {
           ))}
         </div>
 
-        {/* Sentiment trend + Channel mix */}
-        <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          {/* Line chart */}
-          <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                  Sentiment trend
-                </p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
-                  Review sentiment over time
-                </h3>
-              </div>
-              <span className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
-                Interactive chart
-              </span>
-            </div>
-            <div className="h-[260px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={sentimentTrendData}
-                  margin={{ top: 10, right: 20, bottom: 5, left: 0 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="#e9f2ed"
-                  />
-                  <XAxis
-                    dataKey="day"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: "#64756f" }}
-                    dy={10}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: "#64756f" }}
-                  />
-                  <RechartsTooltip
-                    contentStyle={{
-                      borderRadius: 16,
-                      border: "1px solid rgba(26,46,38,0.08)",
-                      boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
-                    }}
-                  />
-                  <Legend
-                    iconType="circle"
-                    wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="positive"
-                    name="Positive"
-                    stroke={COLORS.positive}
-                    strokeWidth={3}
-                    dot={{ r: 3, strokeWidth: 2 }}
-                    activeDot={{ r: 5 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="neutral"
-                    name="Neutral"
-                    stroke={COLORS.neutral}
-                    strokeWidth={3}
-                    dot={{ r: 3, strokeWidth: 2 }}
-                    activeDot={{ r: 5 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="negative"
-                    name="Negative"
-                    stroke={COLORS.negative}
-                    strokeWidth={3}
-                    dot={{ r: 3, strokeWidth: 2 }}
-                    activeDot={{ r: 5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Channel donut charts */}
-          <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                  Channel mix
-                </p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
-                  Sentiment by channel
-                </h3>
-              </div>
-              <span className="rounded-full bg-[#F4F9F6] px-3 py-1 text-xs font-bold text-[#1A2E26]/55">
-                3 sources
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {channelDistributionData.map((channel) => (
-                <div
-                  key={channel.channel}
-                  className="rounded-[1.35rem] border border-[#1A2E26]/8 bg-[#FBFFFC] p-4"
-                >
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-black text-[#1A2E26]">
-                        {channel.channel}
-                      </p>
-                      <p className="text-xs text-[#1A2E26]/52">
-                        {channel.data.reduce(
-                          (acc, curr) => acc + curr.value,
-                          0,
-                        )}{" "}
-                        total reviews
-                      </p>
-                    </div>
-                    <div className="flex gap-2 text-xs font-bold text-[#1A2E26]/55">
-                      <span className="rounded-full bg-[#E8FFF4] px-2 py-1 text-[#007A51]">
-                        Positive
-                      </span>
-                      <span className="rounded-full bg-[#FFF8E1] px-2 py-1 text-[#9A7200]">
-                        Neutral
-                      </span>
-                      <span className="rounded-full bg-[#FFF1F1] px-2 py-1 text-[#B43331]">
-                        Negative
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-[160px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={channel.data}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={48}
-                          outerRadius={68}
-                          paddingAngle={2}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          {channel.data.map((entry, index) => (
-                            <Cell
-                              key={`cell-${channel.channel}-${index}`}
-                              fill={entry.color}
-                            />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip
-                          contentStyle={{
-                            borderRadius: 16,
-                            border: "1px solid rgba(26,46,38,0.08)",
-                            boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+        {/* Main Layout Area */}
+        {/* Top Grid: Line + Volume (Left) | Word Frequency (Right) */}
+        <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          {/* LEFT COLUMN */}
+          <div className="flex flex-col gap-6 h-full">
+            {/* Line chart */}
+            <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
+                    Sentiment trend
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
+                    Review sentiment over time
+                  </h3>
                 </div>
-              ))}
+                <span className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
+                  Interactive chart
+                </span>
+              </div>
+              <div className="h-[260px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={sentimentTrendData}
+                    margin={{ top: 10, right: 20, bottom: 5, left: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#e9f2ed"
+                    />
+                    <XAxis
+                      dataKey="day"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: "#64756f" }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: "#64756f" }}
+                    />
+                    <RechartsTooltip
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: "1px solid rgba(26,46,38,0.08)",
+                        boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="positive"
+                      name="Positive"
+                      stroke={COLORS.positive}
+                      strokeWidth={3}
+                      dot={{ r: 3, strokeWidth: 2 }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="neutral"
+                      name="Neutral"
+                      stroke={COLORS.neutral}
+                      strokeWidth={3}
+                      dot={{ r: 3, strokeWidth: 2 }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="negative"
+                      name="Negative"
+                      stroke={COLORS.negative}
+                      strokeWidth={3}
+                      dot={{ r: 3, strokeWidth: 2 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Volume + themes + word frequency */}
-        <div className="grid gap-6 xl:grid-cols-[0.96fr_1.04fr] xl:items-stretch">
-          <div className="grid gap-6">
             {/* Sentiment Volume Trend (Area Chart) */}
             <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 flex h-[320px] flex-col">
               <div className="mb-5 flex items-center justify-between gap-3">
@@ -382,70 +298,9 @@ export default function DashboardView({ fileName }: { fileName: string }) {
                 </ResponsiveContainer>
               </div>
             </div>
-
-            {/* Horizontal bar chart — themes */}
-            <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 h-[320px]">
-              <div className="mb-5 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                    Themes
-                  </p>
-                  <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
-                    Top feedback themes
-                  </h3>
-                </div>
-                <span className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
-                  Prioritized
-                </span>
-              </div>
-              <div className="h-[calc(100%-5rem)] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={topThemesData}
-                    layout="vertical"
-                    margin={{ top: 0, right: 20, bottom: 0, left: 20 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      horizontal={false}
-                      stroke="#e9f2ed"
-                    />
-                    <XAxis
-                      type="number"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: "#64756f" }}
-                    />
-                    <YAxis
-                      dataKey="theme"
-                      type="category"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: "#1a2e26" }}
-                      width={130}
-                    />
-                    <RechartsTooltip
-                      cursor={{ fill: "#f4f9f6" }}
-                      contentStyle={{
-                        borderRadius: 16,
-                        border: "1px solid rgba(26,46,38,0.08)",
-                        boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
-                      }}
-                    />
-                    <Bar dataKey="count" radius={[0, 12, 12, 0]}>
-                      {topThemesData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${entry.theme}-${index}`}
-                          fill={COLORS[entry.sentiment as keyof typeof COLORS]}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
           </div>
 
+          {/* RIGHT COLUMN */}
           {/* Stacked bar chart — word frequency */}
           <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 flex h-full min-h-[41.5rem] flex-col">
             <div className="mb-5 flex items-center justify-between gap-3">
@@ -522,6 +377,151 @@ export default function DashboardView({ fileName }: { fileName: string }) {
           </div>
         </div>
 
+        {/* BOTTOM SECTION: Themes + Channel Mix (Full Width) */}
+        <div className="flex flex-col gap-6">
+          {/* Horizontal bar chart — themes */}
+          <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 h-[320px]">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
+                  Themes
+                </p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
+                  Top feedback themes
+                </h3>
+              </div>
+              <span className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
+                Prioritized
+              </span>
+            </div>
+            <div className="h-[calc(100%-5rem)] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={topThemesData}
+                  layout="vertical"
+                  margin={{ top: 0, right: 20, bottom: 0, left: 20 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                    stroke="#e9f2ed"
+                  />
+                  <XAxis
+                    type="number"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: "#64756f" }}
+                  />
+                  <YAxis
+                    dataKey="theme"
+                    type="category"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: "#1a2e26" }}
+                    width={130}
+                  />
+                  <RechartsTooltip
+                    cursor={{ fill: "#f4f9f6" }}
+                    contentStyle={{
+                      borderRadius: 16,
+                      border: "1px solid rgba(26,46,38,0.08)",
+                      boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[0, 12, 12, 0]}>
+                    {topThemesData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${entry.theme}-${index}`}
+                        fill={COLORS[entry.sentiment as keyof typeof COLORS]}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          {/* Channel donut charts */}
+          <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
+                  Channel mix
+                </p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
+                  Sentiment by channel
+                </h3>
+              </div>
+              <span className="rounded-full bg-[#F4F9F6] px-3 py-1 text-xs font-bold text-[#1A2E26]/55">
+                3 sources
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {channelDistributionData.map((channel) => (
+                <div
+                  key={channel.channel}
+                  className="rounded-[1.35rem] border border-[#1A2E26]/8 bg-[#FBFFFC] p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-black text-[#1A2E26]">
+                        {channel.channel}
+                      </p>
+                      <p className="text-xs text-[#1A2E26]/52">
+                        {channel.data.reduce(
+                          (acc, curr) => acc + curr.value,
+                          0,
+                        )}{" "}
+                        total reviews
+                      </p>
+                    </div>
+                    <div className="flex gap-2 text-xs font-bold text-[#1A2E26]/55">
+                      <span className="rounded-full bg-[#E8FFF4] px-2 py-1 text-[#007A51]">
+                        Positive
+                      </span>
+                      <span className="rounded-full bg-[#FFF8E1] px-2 py-1 text-[#9A7200]">
+                        Neutral
+                      </span>
+                      <span className="rounded-full bg-[#FFF1F1] px-2 py-1 text-[#B43331]">
+                        Negative
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-[160px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={channel.data}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={48}
+                          outerRadius={68}
+                          paddingAngle={2}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {channel.data.map((entry, index) => (
+                            <Cell
+                              key={`cell-${channel.channel}-${index}`}
+                              fill={entry.color}
+                            />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip
+                          contentStyle={{
+                            borderRadius: 16,
+                            border: "1px solid rgba(26,46,38,0.08)",
+                            boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
         <RecommendationSection />
       </div>
     </div>

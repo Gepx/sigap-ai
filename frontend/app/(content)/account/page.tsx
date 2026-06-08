@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { ArrowLeft, Building2, ChevronDown, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 
 export default function AccountPage() {
   const { data: session } = useSession();
@@ -23,9 +23,22 @@ export default function AccountPage() {
     .slice(0, 2);
 
   const [fullName, setFullName] = useState(name);
+  const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("");
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+  const businessTypes = [
+    "Retail",
+    "E-commerce",
+    "SaaS / Technology",
+    "Food & Beverage",
+    "Healthcare",
+    "Financial Services",
+    "Education",
+    "Other",
+  ];
 
   return (
     <div className="relative min-h-[calc(100svh-2rem)] overflow-hidden bg-[#F4F9F6] px-4 py-6 sm:px-6 lg:px-8">
@@ -120,6 +133,43 @@ export default function AccountPage() {
                   onChange={(e) => setFullName(e.target.value)}
                   className="pl-10"
                 />
+              </div>
+            </div>
+
+            {/* Business Name */}
+            <div className="mt-4 space-y-2">
+              <label className="text-sm font-bold text-[#1A2E26]">
+                Business Name
+              </label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#1A2E26]/30" />
+                <Input
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="Your business name"
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Business Type */}
+            <div className="mt-4 space-y-2">
+              <label className="text-sm font-bold text-[#1A2E26]">
+                Business Type
+              </label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#1A2E26]/30" />
+                <select
+                  value={businessType}
+                  onChange={(e) => setBusinessType(e.target.value)}
+                  className="flex h-9 w-full appearance-none rounded-md border border-input bg-transparent py-1 pl-10 pr-9 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="" disabled>Select business type</option>
+                  {businessTypes.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#1A2E26]/30" />
               </div>
             </div>
 

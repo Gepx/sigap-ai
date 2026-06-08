@@ -8,7 +8,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider>
       <TooltipProvider>
         <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        <SidebarInset className="overflow-hidden border border-neutral-200/50">{children}</SidebarInset>
       </TooltipProvider>
     </SidebarProvider>
   );
