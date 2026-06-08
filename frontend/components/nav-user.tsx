@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,9 +82,11 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem className="cursor-pointer">
-                <BadgeCheckIcon />
-                Account
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/account">
+                  <BadgeCheckIcon />
+                  Account
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import { Sparkles, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { processingSteps } from "@/lib/data";
 
 interface ProcessingViewProps {
@@ -9,12 +9,14 @@ interface ProcessingViewProps {
   onComplete: () => void;
 }
 
-export default function ProcessingView({ fileName, onComplete }: ProcessingViewProps) {
+export default function ProcessingView({
+  fileName,
+  onComplete,
+}: ProcessingViewProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    // Reveal a new step every 1.5 seconds
     const interval = setInterval(() => {
       setCurrentStepIndex((prev) => {
         if (prev < processingSteps.length - 1) {
@@ -25,7 +27,6 @@ export default function ProcessingView({ fileName, onComplete }: ProcessingViewP
       });
     }, 1500);
 
-    // After all steps are revealed, wait 1.5s then trigger complete
     const totalTime = processingSteps.length * 1500 + 1000;
     const timeout = setTimeout(() => {
       setIsComplete(true);
@@ -38,69 +39,104 @@ export default function ProcessingView({ fileName, onComplete }: ProcessingViewP
     };
   }, [onComplete]);
 
-  return (
-    <div className="relative flex flex-1 flex-col min-h-svh bg-white overflow-hidden items-center justify-center px-6">
-      {/* Ambient glow effect (similar to upload view) */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-emerald-400/10 blur-[120px]" />
-        <div className="absolute top-1/4 left-1/3 w-[400px] h-[400px] rounded-full bg-green-300/8 blur-[100px]" />
-      </div>
+  const progress = Math.round(
+    ((currentStepIndex + 1) / processingSteps.length) * 100,
+  );
 
-      <div className="relative z-10 w-full max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-emerald-100 text-emerald-600 mb-6 shadow-sm shadow-emerald-200">
-            {isComplete ? (
-              <CheckCircle2 className="size-8" />
-            ) : (
-              <Sparkles className="size-8 animate-pulse" />
-            )}
+  return (
+    <div className="relative flex min-h-[calc(100svh-2rem)] flex-1 items-center justify-center overflow-hidden bg-[#F4F9F6] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,176,116,0.16),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(26,46,38,0.08),transparent_28%)]" />
+      <div className="pointer-events-none absolute left-[-4rem] top-10 size-72 rounded-full bg-[#00B074]/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-[-6rem] bottom-[-6rem] size-[30rem] rounded-full bg-[#1A2E26]/8 blur-3xl" />
+
+      <div className="relative z-10 w-full max-w-3xl">
+        {/* Page header */}
+        <div className="mx-auto mb-6 max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#00B074]/20 bg-white/75 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-[#007A51] shadow-sm backdrop-blur">
+            <ShieldCheck className="size-3.5" />
+            AI processing
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-            {isComplete ? "Analysis Complete!" : "Analyzing Document"}
+          <h2 className="mt-5 text-4xl font-black tracking-tight text-[#1A2E26] sm:text-5xl">
+            {isComplete ? "Analysis complete" : "Thinking through the data"}
           </h2>
-          <p className="text-sm text-gray-500 font-medium">
-            {fileName}
+          <p className="mt-4 text-base font-medium leading-8 text-[#1A2E26]/62">
+            {fileName} • Sigap.ai is reading the file, normalizing text, and
+            preparing the sentiment output.
           </p>
         </div>
 
-        {/* Steps */}
-        <div className="space-y-4">
-          {processingSteps.map((step, index) => {
-            const isActive = index === currentStepIndex;
-            const isPast = index < currentStepIndex;
-            const isVisible = index <= currentStepIndex;
+        {/* Single unified card */}
+        <div className="rounded-[2rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-2xl shadow-[#00B074]/10 backdrop-blur sm:p-6 lg:p-8">
+          {/* Header row */}
+          <div className="mb-4 flex items-center justify-between gap-3 border-b border-[#1A2E26]/8 pb-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
+                Thinking process
+              </p>
+              <h3 className="mt-2 text-xl font-black tracking-tight text-[#1A2E26]">
+                Scroll through the AI steps
+              </h3>
+            </div>
+            <div className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
+              Live
+            </div>
+          </div>
 
-            if (!isVisible) return null;
+          {/* Progress bar — directly below heading */}
+          <div className="mb-5 rounded-2xl bg-[#F4F9F6] p-4">
+            <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.18em] text-[#007A51]">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[#E8FFF4]">
+              <div
+                className="h-full rounded-full bg-[#00B074] transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
 
-            return (
-              <div 
-                key={index} 
-                className={`
-                  flex items-start gap-4 p-4 rounded-xl border transition-all duration-500
-                  animate-in fade-in slide-in-from-bottom-4
-                  ${isActive ? "bg-emerald-50 border-emerald-200 shadow-sm shadow-emerald-50" : ""}
-                  ${isPast ? "bg-white/60 border-transparent opacity-60" : ""}
-                `}
-              >
-                <div className="mt-1">
-                  {isPast ? (
-                    <CheckCircle2 className="size-5 text-emerald-500" />
-                  ) : isActive ? (
-                    <Loader2 className="size-5 text-emerald-600 animate-spin" />
-                  ) : null}
+          {/* Step list */}
+          <div className="max-h-[15rem] space-y-3 overflow-y-auto pr-2">
+            {processingSteps.map((step, index) => {
+              const isActive = index === currentStepIndex;
+              const isPast = index < currentStepIndex;
+              const isVisible = index <= currentStepIndex;
+
+              if (!isVisible) return null;
+
+              return (
+                <div
+                  key={index}
+                  className={`flex items-start gap-4 rounded-2xl border p-4 transition-all duration-500 ${
+                    isActive
+                      ? "border-[#00B074]/25 bg-[#E8FFF4]"
+                      : isPast
+                        ? "border-transparent bg-white opacity-65"
+                        : "border-[#1A2E26]/8 bg-[#F4F9F6]"
+                  }`}
+                >
+                  <div className="mt-0.5">
+                    {isPast ? (
+                      <CheckCircle2 className="size-5 text-[#00B074]" />
+                    ) : isActive ? (
+                      <Loader2 className="size-5 animate-spin text-[#00B074]" />
+                    ) : null}
+                  </div>
+                  <div>
+                    <p
+                      className={`text-sm font-bold ${isActive ? "text-[#007A51]" : "text-[#1A2E26]"}`}
+                    >
+                      {step.message}
+                    </p>
+                    <p className="mt-1 text-xs leading-6 text-[#1A2E26]/55">
+                      {step.detail}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className={`font-medium ${isActive ? "text-emerald-800" : "text-gray-700"}`}>
-                    {step.message}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {step.detail}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

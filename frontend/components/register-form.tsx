@@ -11,17 +11,16 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import Image from "next/image";
 import { SignUpFormData, signUpSchema } from "@/lib/schemas/authSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation"; // Fixed import
-import { useMutation } from "@tanstack/react-query"; // Added missing import
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { errorHandler } from "@/lib/handler/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 export function RegisterForm({
   className,
@@ -51,7 +50,7 @@ export function RegisterForm({
       const res = await api.post("/api/auth/register", payload);
       return res.data;
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       errorHandler(err);
       toast.error("Error creating account");
     },
@@ -69,24 +68,20 @@ export function RegisterForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              src="/register-bg.png"
-              alt="Sign Up Background"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.3]"
-              width={1280}
-              height={720}
-            />
-          </div>
-          {/* Attached handleSubmit here */}
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 md:p-8">
+      <Card className="overflow-hidden border border-[#1A2E26]/10 bg-white/92 p-0 shadow-2xl shadow-[#00B074]/10 backdrop-blur">
+        <CardContent className="p-0">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 sm:p-8">
             <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Create an account</h1>
-                <p className="text-balance text-muted-foreground text-sm">
-                  Enter your details below to create your account
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#00B074]/20 bg-[#E8FFF4] px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#007A51]">
+                <ShieldCheck className="size-3.5" />
+                Safe registration
+              </div>
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-black tracking-tight text-[#1A2E26]">
+                  Create an account
+                </h1>
+                <p className="max-w-md text-sm leading-7 text-[#1A2E26]/62">
+                  Enter your details to get into the Sigap analysis workspace.
                 </p>
               </div>
 
@@ -99,7 +94,9 @@ export function RegisterForm({
                   {...register("name")}
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-sm">{errors.name.message}</p>
+                  <p className="text-sm text-[#B43331]">
+                    {errors.name.message}
+                  </p>
                 )}
               </Field>
 
@@ -108,11 +105,13 @@ export function RegisterForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="test@example.com"
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                  <p className="text-sm text-[#B43331]">
+                    {errors.email.message}
+                  </p>
                 )}
               </Field>
 
@@ -127,7 +126,7 @@ export function RegisterForm({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#1A2E26]/45 transition hover:text-[#1A2E26]"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -137,15 +136,20 @@ export function RegisterForm({
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-sm text-[#B43331]">
                     {errors.password.message}
                   </p>
                 )}
               </Field>
 
               <Field>
-                <Button type="submit" className="w-full" disabled={isPending}>
+                <Button
+                  type="submit"
+                  className="h-11 w-full rounded-full bg-[#00B074] text-white shadow-lg shadow-[#00B074]/20 transition hover:-translate-y-0.5 hover:bg-[#079968]"
+                  disabled={isPending}
+                >
                   {isPending ? "Registering..." : "Register"}
+                  <ArrowRight className="size-4" />
                 </Button>
               </Field>
 
@@ -153,7 +157,7 @@ export function RegisterForm({
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="underline underline-offset-4 hover:text-primary"
+                  className="font-semibold text-[#007A51] underline-offset-4 hover:underline"
                 >
                   Log in
                 </Link>
@@ -162,10 +166,6 @@ export function RegisterForm({
           </form>
         </CardContent>
       </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </FieldDescription>
     </div>
   );
 }

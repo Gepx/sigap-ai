@@ -1,153 +1,161 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/nav-user";
-import {
-  Sparkles,
-  SquarePen,
-  Search,
-  PanelLeft,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
-import { Button } from "./ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Sparkles, SquarePen, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const historyItems = [
-  { id: 1, title: "Analyzing Sales Data Q4 2025" },
-  { id: 2, title: "Customer Segmentation Model" },
-  { id: 3, title: "Revenue Forecast Analysis" },
-  { id: 4, title: "Product Performance Report" },
-  { id: 5, title: "Marketing Campaign Review" },
-  { id: 6, title: "Supply Chain Optimization" },
-  { id: 7, title: "User Retention Dashboard" },
-  { id: 8, title: "Competitor Pricing Analysis" },
-  { id: 9, title: "Quarterly Financial Summary" },
-  { id: 10, title: "Inventory Trend Prediction" },
+  { id: 1, title: "Coffee chain reviews", detail: "Processed 1,247 rows" },
+  { id: 2, title: "New delivery feedback", detail: "Negative spike detected" },
+  { id: 3, title: "Branch sentiment report", detail: "Ready for export" },
+  { id: 4, title: "Product quality scan", detail: "3 top themes found" },
+  {
+    id: 5,
+    title: "Support response audit",
+    detail: "Recommendation generated",
+  },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { state, toggleSidebar } = useSidebar();
+function SidebarHoverTrigger() {
+  const { isMobile, state } = useSidebar();
+
+  if (isMobile || state !== "collapsed") {
+    return null;
+  }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          {/* Logo + Toggle row */}
-          <SidebarMenuItem className="mb-4">
-            <div className="flex items-center justify-between w-full">
-              {state === "collapsed" ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={toggleSidebar}
-                      className="group/logo relative flex aspect-square size-8 items-center justify-center rounded-lg bg-emerald-600 text-white cursor-pointer transition-all hover:bg-emerald-700"
-                      size="icon"
-                      variant="ghost"
-                    >
-                      <Sparkles className="size-4 transition-opacity duration-200 group-hover/logo:opacity-0" />
-                      <PanelLeftOpen className="size-4 absolute inset-0 m-auto opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">Open sidebar</TooltipContent>
-                </Tooltip>
-              ) : (
-                <>
-                  <SidebarMenuButton
-                    size="lg"
-                    tooltip="SIGAP AI"
-                    className="cursor-pointer flex-1 hover:bg-transparent"
-                  >
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-emerald-600 text-white">
+    <div className="group fixed left-0 top-5 z-30 h-16 w-8 md:block">
+      <div className="absolute inset-y-0 left-0 w-8" />
+      <SidebarTrigger className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full border border-[#1A2E26]/10 bg-white/95 text-[#1A2E26]/70 shadow-lg shadow-[#1A2E26]/10 opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100 hover:bg-[#E8FFF4] hover:text-[#007A51]" />
+    </div>
+  );
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const filteredHistory = historyItems.filter(
+    (item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.detail.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  return (
+    <>
+      <Sidebar variant="inset" {...props}>
+        <SidebarHeader>
+          <div className="flex items-center gap-2">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  size="lg"
+                  asChild
+                  className="hover:bg-transparent"
+                >
+                  <Link href="/app">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#00B074] text-white">
                       <Sparkles className="size-4" />
                     </div>
-                    <span className="truncate font-semibold text-lg">
-                      SIGAP AI
-                    </span>
-                  </SidebarMenuButton>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        onClick={toggleSidebar}
-                        className="group/toggle relative flex items-center justify-center size-8 rounded-full text-emerald-600 hover:bg-emerald-100 transition-colors cursor-pointer shrink-0"
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <PanelLeft className="size-4 transition-opacity duration-200 group-hover/toggle:opacity-0" />
-                        <PanelLeftClose className="size-4 absolute inset-0 m-auto opacity-0 transition-opacity duration-200 group-hover/toggle:opacity-100" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Close sidebar</TooltipContent>
-                  </Tooltip>
-                </>
-              )}
-            </div>
-          </SidebarMenuItem>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">SIGAP AI</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        Review intelligence
+                      </span>
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+            <SidebarTrigger className="group-data-[collapsible=icon]:hidden rounded-full border border-[#1A2E26]/10 bg-white/90 text-[#1A2E26]/65 shadow-sm transition hover:bg-[#E8FFF4] hover:text-[#007A51]" />
+          </div>
+        </SidebarHeader>
 
-          {/* New Chat */}
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="New Chat" className="cursor-pointer">
-              <SquarePen className="size-4" />
-              <span>New chat</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          {/* Search */}
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Search" className="cursor-pointer">
-              <Search className="size-4" />
-              <span>Search chats</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-
-      {/* Content: History List */}
-      <SidebarContent>
-        {state === "expanded" && (
+        <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Recent</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="rounded-lg bg-[#00B074] text-white hover:bg-[#079968] hover:text-white"
+                >
+                  <Link href="/app">
+                    <SquarePen className="size-4" />
+                    <span>New analysis</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+
+          <SidebarGroup className="pt-0">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 size-4 text-[#1A2E26]/40" />
+              <Input
+                type="search"
+                placeholder="Search chats..."
+                className="h-9 w-full rounded-lg border-[#1A2E26]/10 bg-white pl-8 text-sm placeholder:text-[#1A2E26]/40 focus-visible:ring-[#00B074]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Recent analyses</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
-                {historyItems.map((item) => (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton
-                      tooltip={item.title}
-                      className="cursor-pointer"
-                    >
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
+              {filteredHistory.length > 0 ? (
+                <SidebarMenu>
+                  {filteredHistory.map((item, index) => (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        className={`h-auto py-2 ${
+                          index === 0 && searchQuery === ""
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : ""
+                        }`}
+                      >
+                        <div className="grid gap-0.5 text-left">
+                          <span className="truncate text-sm font-medium">
+                            {item.title}
+                          </span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {item.detail}
+                          </span>
+                        </div>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              ) : (
+                <p className="px-2 py-4 text-center text-xs text-muted-foreground">
+                  No chats found.
+                </p>
+              )}
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
-      </SidebarContent>
+        </SidebarContent>
 
-      {/* Footer: User Profile */}
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+        <SidebarFooter>
+          <NavUser />
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarHoverTrigger />
+    </>
   );
 }

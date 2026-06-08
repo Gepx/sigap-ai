@@ -147,7 +147,8 @@ export const recommendationProcessingSteps = [
   },
   {
     message: "Cross-referencing themes with channels...",
-    detail: "Correlating specific issues with Email and Social Media interactions.",
+    detail:
+      "Correlating specific issues with Email and Social Media interactions.",
   },
   {
     message: "Formulating actionable recommendations...",
@@ -160,22 +161,34 @@ export const recommendationData = [
   {
     id: 1,
     title: "Optimize West Coast Logistics",
-    description: "413 negative reviews mentioned 'Delivery Time'. 78% of these originated from West Coast customers. Investigate delays with primary logistics partner in this region.",
+    description:
+      "413 negative reviews mentioned 'Delivery Time'. 78% of these originated from West Coast customers. Investigate delays with primary logistics partner in this region.",
     priority: "High",
     impact: "Could improve overall sentiment by up to 15%.",
   },
   {
     id: 2,
     title: "Create Chat Support Templates for 'Product Quality'",
-    description: "While product quality has positive mentions, the 64 negative mentions of 'disappointing' heavily correlate with Chat support inquiries. Pre-written templates for troubleshooting can reduce resolution time.",
+    description:
+      "While product quality has positive mentions, the 64 negative mentions of 'disappointing' heavily correlate with Chat support inquiries. Pre-written templates for troubleshooting can reduce resolution time.",
     priority: "Medium",
     impact: "Expected to reduce average handle time (AHT) by 2 minutes.",
   },
   {
     id: 3,
     title: "Proactive Communication on Pricing",
-    description: "Pricing was the largest 'Neutral' topic. Consider publishing a transparent pricing breakdown or offering a comparison guide to convert neutral sentiment into positive brand trust.",
+    description:
+      "Pricing was the largest 'Neutral' topic. Consider publishing a transparent pricing breakdown or offering a comparison guide to convert neutral sentiment into positive brand trust.",
     priority: "Low",
     impact: "May increase customer trust and conversion rates by 5%.",
   },
+];
+
+export const performanceMetricsData = [
+  { metric: "Quality", score: 85, benchmark: 70 },
+  { metric: "Support", score: 62, benchmark: 75 },
+  { metric: "Usability", score: 92, benchmark: 80 },
+  { metric: "Pricing", score: 55, benchmark: 60 },
+  { metric: "Reliability", score: 88, benchmark: 85 },
+  { metric: "Features", score: 75, benchmark: 70 },
 ];
