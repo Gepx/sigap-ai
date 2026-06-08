@@ -64,8 +64,10 @@ GROCERY_FNB_KEYWORDS = [
 
 # keyword merchant f&b untuk aplikasi pengelolaan resto dan pesanan GoFood
 MERCHANT_FNB_KEYWORDS = [
-    "gofood", "go food", "resto", "restoran", "warung", "kedai", "kafe",
-    "cafe", "merchant", "mitra", "mitra gofood", "mitra resto",
+    "gofood", "go food", "grabfood", "grab food", "grabmart", "shopeefood",
+    "shopee food", "resto", "restoran", "warung", "kedai", "kafe",
+    "cafe", "merchant", "mitra", "mitra gofood", "mitra grabfood",
+    "mitra shopeefood", "mitra resto",
     "mitra restoran", "usaha makanan", "bisnis makanan", "jualan makanan",
     "jualan minuman", "makanan", "minuman", "menu", "menu makanan",
     "menu minuman", "harga menu", "stok menu", "varian menu", "order",
@@ -77,6 +79,21 @@ MERCHANT_FNB_KEYWORDS = [
     "jam buka", "jam operasional", "tutup toko", "buka toko", "outlet",
     "dapur", "masak", "masakan", "pelanggan", "customer", "rating resto",
     "ulasan pelanggan"]
+
+
+# keyword marketplace f&b untuk menyaring ShopeeFood
+MARKETPLACE_FNB_KEYWORDS = [
+    "shopeefood", "shopee food", "okejek", "oke food", "qpon", "coupon",
+    "kupon", "voucher", "voucher makanan", "voucher minuman", "voucher resto",
+    "voucher restoran", "voucher kopi", "promo makanan", "promo minuman",
+    "promo resto", "promo restoran", "diskon makanan", "diskon minuman",
+    "diskon resto", "diskon restoran", "makanan", "minuman", "resto",
+    "restoran", "warung", "kedai", "kafe", "cafe", "kuliner", "menu",
+    "menu makanan", "menu minuman", "pesanan makanan", "pesan makanan",
+    "pesen makanan", "order makanan", "antar makanan", "delivery makanan",
+    "driver makanan", "merchant makanan", "merchant resto", "merchant restoran",
+    "makanannya", "minumannya", "restonya", "restorannya", "kedainya",
+    "kopi", "ayam", "burger", "pizza", "mie", "nasi", "snack", "cemilan"]
 
 APP_CONFIGS = [
     # dataset umum gofood dan grabfood: dengan semua rating dan keyword layanan f&b
@@ -244,6 +261,37 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
+    # dataset netral v2 dari aplikasi food delivery: tidak menduplikat dataset lama
+    {
+        "group": "fnb-netral-ekstra",
+        "app_name": "Gojek / GoFood Netral v2",
+        "app_id": "com.gojek.app",
+        "output": "gofood_netral_v2_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": DELIVERY_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 150000},
+
+    {
+        "group": "fnb-netral-ekstra",
+        "app_name": "Grab / GrabFood Netral v2",
+        "app_id": "com.grabtaxi.passenger",
+        "output": "grabfood_netral_v2_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": DELIVERY_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 150000},
+
+    {
+        "group": "fnb-netral-ekstra",
+        "app_name": "Shopee Indonesia / ShopeeFood Netral v2",
+        "app_id": "com.shopee.id",
+        "output": "shopeefood_netral_v2_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": MARKETPLACE_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 150000},
+
     # dataset netral tambahan dari aplikasi grocery Indonesia: yang rating 3 dengan keyword f&b
     {
         "group": "grocery-netral-baru",
@@ -341,6 +389,58 @@ APP_CONFIGS = [
         "app_id": "com.gojek.resto",
         "output": "gobiz_netral_googleplay_reviews.csv",
         "rating_filter": 3,
+        "include_keywords": MERCHANT_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    # dataset netral tambahan dari aplikasi merchant f&b: yang memiliki rating 3
+    {
+        "group": "merchant-netral",
+        "app_name": "GrabMerchant",
+        "app_id": "com.grab.merchant",
+        "output": "grabmerchant_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": MERCHANT_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "merchant-netral",
+        "app_name": "Shopee Partner",
+        "app_id": "com.shopeepay.merchant.id",
+        "output": "shopeepartner_netral_googleplay_reviews.csv",
+        "rating_filter": 3,
+        "include_keywords": MERCHANT_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    # dataset negatif tambahan dari aplikasi merchant f&b: yang memiliki rating 1 dan 2
+    {
+        "group": "merchant-negatif",
+        "app_name": "GoBiz / GoFood Merchant negatif",
+        "app_id": "com.gojek.resto",
+        "output": "gobiz_negatif_googleplay_reviews.csv",
+        "rating_filter": [1, 2],
+        "include_keywords": MERCHANT_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "merchant-negatif",
+        "app_name": "GrabMerchant negatif",
+        "app_id": "com.grab.merchant",
+        "output": "grabmerchant_negatif_googleplay_reviews.csv",
+        "rating_filter": [1, 2],
+        "include_keywords": MERCHANT_FNB_KEYWORDS,
+        "require_indonesian": True,
+        "default_max_raw": 100000},
+
+    {
+        "group": "merchant-negatif",
+        "app_name": "Shopee Partner negatif",
+        "app_id": "com.shopeepay.merchant.id",
+        "output": "shopeepartner_negatif_googleplay_reviews.csv",
+        "rating_filter": [1, 2],
         "include_keywords": MERCHANT_FNB_KEYWORDS,
         "require_indonesian": True,
         "default_max_raw": 100000},
@@ -460,8 +560,13 @@ def crawl_reviews(app_config, lang, country, batch_size, max_raw, target_filtere
         for item in result:
             rating = item.get("score", "")
             rating_filter = app_config["rating_filter"]
-            if rating_filter is not None and str(rating).strip() != str(rating_filter):
-                continue
+            if rating_filter is not None:
+                if isinstance(rating_filter, list):
+                    allowed_ratings = [str(value).strip() for value in rating_filter]
+                    if str(rating).strip() not in allowed_ratings:
+                        continue
+                elif str(rating).strip() != str(rating_filter):
+                    continue
 
             rating_match_seen += 1
             review_text = clean_review_text(item.get("content", ""))
@@ -511,7 +616,7 @@ def parse_args():
 
     parser.add_argument(
         "--group",
-        choices=["all", "delivery-netral", "fnb-netral", "grocery-netral", "fnb-netral-baru", "grocery-netral-baru"],
+        choices=["all", "delivery-netral", "fnb-netral", "grocery-netral", "fnb-netral-baru", "fnb-netral-ekstra", "grocery-netral-baru", "merchant-netral", "merchant-negatif"],
         default="all",
         help="Kelompok dataset yang dicrawl. Default: all")
 
