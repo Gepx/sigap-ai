@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface UploadContentProps {
   onUpload: (fileName: string) => void;
@@ -64,6 +65,7 @@ export default function UploadContent({ onUpload }: UploadContentProps) {
     }
 
     setIsConfirming(true);
+    toast.success("CSV file uploaded successfully!");
     onUpload(file.name);
   };
 
