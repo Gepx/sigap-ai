@@ -11,18 +11,21 @@ import {
   loginSchema,
   forgotPasswordSchema,
 } from "../schemas/auth.schema.js";
+import { authLimiter } from "../utils/rateLimiter.js";
 
 const AuthRouter: Router = Router();
 
 AuthRouter.post(
   "/register",
+  authLimiter,
   validateSchema(registerSchema, "body"),
   registerController,
 );
-AuthRouter.post("/login", validateSchema(loginSchema, "body"), loginController);
+AuthRouter.post("/login", authLimiter, validateSchema(loginSchema, "body"), loginController);
 AuthRouter.post("/logout", logoutController);
 AuthRouter.post(
   "/forgot-password",
+  authLimiter,
   validateSchema(forgotPasswordSchema, "body"),
   forgotPasswordController,
 );

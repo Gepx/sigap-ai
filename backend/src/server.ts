@@ -5,7 +5,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
+import { globalLimiter } from "./utils/rateLimiter.js";
 import AuthRouter from "./routes/auth.route.js";
+import RoleRouter from "./routes/role.route.js";
+import PermissionRouter from "./routes/permission.route.js";
+import UserRouter from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -24,11 +28,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(globalLimiter);
 
-// Auth Route
 app.use("/api/auth", AuthRouter);
 
 app.use(authMiddleware);
+
+app.use("/api/roles", RoleRouter);
+app.use("/api/permissions", PermissionRouter);
+app.use("/api/users", UserRouter);
 
 app.use(errorHandler);
 
