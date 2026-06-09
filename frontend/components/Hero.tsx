@@ -8,6 +8,7 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
+import { HeroScrollAnimation } from "@/components/hero-scroll-animation";
 
 const sentimentBars = [
   { label: "Positive", value: "58%", color: "bg-[#00B074]", width: "w-[58%]" },
@@ -179,8 +180,10 @@ export default function Hero() {
           </Link>
         </div>
 
-        <div className="mt-14 w-full">
-          <AppPreview />
+        <div className="mt-8 w-full" style={{ perspective: "1000px" }}>
+          <HeroScrollAnimation>
+            <AppPreview />
+          </HeroScrollAnimation>
         </div>
       </div>
     </section>

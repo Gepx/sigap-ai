@@ -132,10 +132,10 @@
 @keyframes sigap-dashboard-float {
   0%,
   100% {
-    transform: translateY(0) rotateX(0deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px) rotateX(1.5deg);
+    transform: translateY(-10px);
   }
 }
 

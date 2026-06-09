@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   BrainCircuit,
@@ -9,6 +9,7 @@ import {
   Lightbulb,
   Loader2,
   ShieldAlert,
+  Play,
 } from "lucide-react";
 
 const steps = [
@@ -35,6 +36,8 @@ const steps = [
   },
 ];
 
+type SimulatorStatus = "idle" | "uploading" | "processing" | "done";
+
 const simulationSteps = [
   "Reading CSV structure",
   "Cleaning Indonesian review text",
@@ -44,15 +47,49 @@ const simulationSteps = [
 ];
 
 export default function Benefits() {
-  const [activeStep, setActiveStep] = useState(0);
+  const [simStatus, setSimStatus] = useState<SimulatorStatus>("idle");
+  const [activeStep, setActiveStep] = useState(-1);
+  const activeStepRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveStep((current) => (current + 1) % simulationSteps.length);
-    }, 1400);
+    if (simStatus === "processing") {
+      const interval = setInterval(() => {
+        setActiveStep((prev) => {
+          if (prev < simulationSteps.length - 1) {
+            return prev + 1;
+          } else {
+            clearInterval(interval);
+            setSimStatus("done");
+            return prev + 1;
+          }
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [simStatus]);
 
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => {
+    if (activeStepRef.current) {
+      activeStepRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [activeStep]);
+
+  const handleStartSim = () => {
+    if (simStatus !== "idle") return;
+    setSimStatus("uploading");
+    setTimeout(() => {
+      setSimStatus("processing");
+      setActiveStep(0);
+    }, 1000);
+  };
+
+  const handleReset = () => {
+    setSimStatus("idle");
+    setActiveStep(-1);
+  };
 
   return (
     <section id="how-it-works" className="bg-white px-5 py-24 sm:px-8 lg:px-10">
@@ -65,12 +102,23 @@ export default function Benefits() {
             From raw reviews to a clear response plan.
           </h2>
           <p className="mt-5 text-base font-medium leading-8 text-[#1A2E26]/60">
-            The flow stays simple for business users: upload the feedback,
-            let Sigap.ai read the perception signal, then act on the result.
+            The flow stays simple for business users: upload the feedback, let
+            Sigap.ai read the perception signal, then act on the result.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 flex items-start">
+          <button className="group flex items-center gap-3 rounded-full border border-[#00B074]/20 bg-[#F4F9F6] py-1.5 pl-1.5 pr-5 transition-all duration-300 hover:border-[#00B074]/30 hover:bg-[#00B074]/10 hover:shadow-md">
+            <span className="flex size-8 items-center justify-center rounded-full bg-[#00B074] text-white shadow-sm transition-transform duration-300 group-hover:scale-110">
+              <Play className="ml-1 size-4 fill-current" />
+            </span>
+            <span className="text-sm font-bold text-[#00B074]">
+              Watch video
+            </span>
+          </button>
+        </div>
+
+        <div className="mt-2 grid gap-5 lg:grid-cols-3">
           {steps.map((step) => (
             <div
               key={step.number}
@@ -112,7 +160,7 @@ export default function Benefits() {
               </p>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[#1A2E26]/10 bg-white p-5 shadow-sm">
+            <div className="rounded-[1.5rem] border border-[#1A2E26]/10 bg-white p-5 shadow-sm transition-all duration-300">
               <div className="mb-5 flex items-center justify-between border-b border-[#1A2E26]/8 pb-4">
                 <div className="flex items-center gap-3">
                   <span className="flex size-9 items-center justify-center rounded-xl bg-[#00B074]/10 text-[#00B074]">
@@ -120,47 +168,142 @@ export default function Benefits() {
                   </span>
                   <div>
                     <p className="text-sm font-black text-[#1A2E26]">
-                      reviews_june.csv
-                    </p>
-                    <p className="text-xs font-bold text-[#1A2E26]/45">
-                      1,247 rows detected
+                      AI Pipeline Simulator
                     </p>
                   </div>
                 </div>
-                <span className="hidden items-center gap-2 rounded-full bg-[#00B074]/10 px-3 py-1 text-xs font-black text-[#007A51] sm:inline-flex">
-                  Running
-                  <ArrowRight className="size-3" />
-                </span>
+                {simStatus !== "idle" && (
+                  <button
+                    onClick={handleReset}
+                    className="text-xs font-bold text-[#00B074] hover:underline"
+                  >
+                    Reset Simulator
+                  </button>
+                )}
               </div>
 
-              <div className="space-y-3">
-                {simulationSteps.map((step, index) => {
-                  const isDone = index < activeStep;
-                  const isActive = index === activeStep;
+              {simStatus === "idle" && (
+                <div
+                  onClick={handleStartSim}
+                  className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#00B074]/30 bg-[#00B074]/5 p-10 transition-colors hover:bg-[#00B074]/10"
+                >
+                  <div className="rounded-xl bg-[#00B074] p-3.5 text-white shadow-sm transition-transform group-hover:scale-105">
+                    <FileUp className="size-6" />
+                  </div>
+                  <span className="mt-4 text-base font-black text-[#1A2E26]">
+                    Select File
+                  </span>
+                  <span className="mt-1 text-xs font-bold text-[#1A2E26]/45">
+                    or drag file here
+                  </span>
+                  <p className="mt-6 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#1A2E26]/60 shadow-sm">
+                    Click to simulate the sentiment analysis
+                  </p>
+                </div>
+              )}
 
-                  return (
-                    <div
-                      key={step}
-                      className={`flex items-center gap-3 rounded-2xl border p-4 transition duration-300 ${
-                        isActive
-                          ? "border-[#00B074]/30 bg-[#E8FFF4] text-[#007A51]"
-                          : isDone
-                            ? "border-[#00B074]/15 bg-white text-[#1A2E26]/55"
-                            : "border-[#1A2E26]/8 bg-[#F4F9F6] text-[#1A2E26]/35"
-                      }`}
-                    >
-                      {isDone ? (
-                        <CheckCircle2 className="size-5 text-[#00B074]" />
-                      ) : isActive ? (
-                        <Loader2 className="size-5 animate-spin text-[#00B074]" />
-                      ) : (
-                        <span className="size-5 rounded-full border-2 border-current" />
-                      )}
-                      <span className="text-sm font-bold">{step}</span>
+              {simStatus === "uploading" && (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="size-10 animate-spin text-[#00B074]" />
+                  <span className="mt-4 text-sm font-bold text-[#1A2E26]/70">
+                    Uploading review file...
+                  </span>
+                </div>
+              )}
+
+              {(simStatus === "processing" || simStatus === "done") && (
+                <div className="space-y-3">
+                  {/* File Mockup Header */}
+                  <div className="mb-4 flex items-center justify-between rounded-xl border border-[#00B074]/10 bg-[#F4F9F6] p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-8 items-center justify-center rounded-lg bg-[#00B074] text-white">
+                        <FileUp className="size-4" />
+                      </span>
+                      <div>
+                        <p className="text-xs font-black text-[#1A2E26]">
+                          reviews_june.csv
+                        </p>
+                        <p className="text-[10px] font-bold text-[#1A2E26]/45">
+                          1,247 rows detected
+                        </p>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
+                    {simStatus === "processing" && (
+                      <span className="hidden items-center gap-1.5 rounded-full bg-[#00B074]/10 px-2.5 py-1 text-[10px] font-black text-[#007A51] sm:inline-flex">
+                        Running
+                        <Loader2 className="size-3 animate-spin" />
+                      </span>
+                    )}
+                  </div>
+
+                  {simStatus !== "done" && (
+                    <div className="max-h-[12rem] space-y-3 overflow-y-auto pr-2">
+                      {simulationSteps.map((step, index) => {
+                        const isDone = index < activeStep;
+                        const isActive =
+                          index === activeStep && simStatus === "processing";
+
+                        return (
+                          <div
+                            key={step}
+                            ref={isActive ? activeStepRef : null}
+                            className={`flex items-center justify-between gap-3 rounded-2xl border p-4 transition-all duration-300 ${
+                              isActive
+                                ? "translate-x-1 border-[#00B074]/30 bg-[#E8FFF4] text-[#007A51] shadow-sm"
+                                : isDone
+                                  ? "border-[#00B074]/15 bg-white text-[#1A2E26]/55"
+                                  : "border-[#1A2E26]/8 bg-[#F4F9F6] text-[#1A2E26]/35"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              {isDone ? (
+                                <CheckCircle2 className="size-5 text-[#00B074]" />
+                              ) : isActive ? (
+                                <Loader2 className="size-5 animate-spin text-[#00B074]" />
+                              ) : (
+                                <span className="size-5 rounded-full border-2 border-current" />
+                              )}
+                              <span className="text-sm font-bold">{step}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Final Visualization Mockup */}
+                  {simStatus === "done" && (
+                    <div className="mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                      <div className="rounded-2xl border border-[#00B074]/20 bg-[#F4F9F6] p-4 text-center shadow-sm">
+                        <p className="text-xs font-black text-[#1A2E26]">
+                          🎉 Analysis Complete!
+                        </p>
+                        <div className="mt-3 flex flex-wrap justify-center gap-2">
+                          <span className="rounded-full bg-[#00B074]/15 px-3 py-1 text-xs font-bold text-[#007A51]">
+                            58% Positive
+                          </span>
+                          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
+                            25% Neutral
+                          </span>
+                          <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700">
+                            17% Negative
+                          </span>
+                        </div>
+                        <div className="mt-3 rounded-xl bg-white p-3 border border-[#1A2E26]/5 text-left">
+                          <p className="text-[11px] font-black uppercase text-[#1A2E26]/60">
+                            Top Recommendation
+                          </p>
+                          <p className="mt-1 text-xs font-bold text-[#1A2E26]">
+                            "Customers love the new packaging, but shipping
+                            delays are causing frustration. Prioritize
+                            alternative courier options."
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

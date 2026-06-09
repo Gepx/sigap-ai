@@ -8,7 +8,6 @@ const NAV_LINKS = [
   { label: "How it works", href: "#how-it-works" },
   { label: "MVP", href: "#mvp" },
   { label: "Features", href: "#features" },
-  { label: "About", href: "#about" },
 ];
 
 export default function Navbar() {

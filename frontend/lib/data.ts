@@ -1,4 +1,3 @@
-// Processing steps for the AI thinking animation
 export const processingSteps = [
   {
     message: "Extracting review data from document...",
@@ -34,7 +33,6 @@ export const processingSteps = [
   },
 ];
 
-// Dashboard summary statistics
 export const summaryData = {
   totalFeedback: 1247,
   positive: { count: 724, percentage: 58.1 },
@@ -42,14 +40,12 @@ export const summaryData = {
   negative: { count: 212, percentage: 17.0 },
 };
 
-// Channel breakdown
 export const channelData = [
   { channel: "Email", count: 482, icon: "Mail" },
   { channel: "Chat", count: 389, icon: "MessageCircle" },
   { channel: "Social Media", count: 376, icon: "Share2" },
 ];
 
-// Sentiment trend over 7 days (line chart)
 export const sentimentTrendData = [
   { day: "Mon", positive: 72, neutral: 35, negative: 18 },
   { day: "Tue", positive: 85, neutral: 28, negative: 22 },
@@ -60,7 +56,6 @@ export const sentimentTrendData = [
   { day: "Sun", positive: 78, neutral: 32, negative: 12 },
 ];
 
-// Sentiment distribution by channel (donut charts)
 export const channelDistributionData = [
   {
     channel: "Email",
@@ -88,7 +83,6 @@ export const channelDistributionData = [
   },
 ];
 
-// Top feedback themes (horizontal bar chart)
 export const topThemesData = [
   { theme: "Delivery Time", count: 413, sentiment: "negative" },
   { theme: "Product Quality", count: 356, sentiment: "positive" },
@@ -97,7 +91,6 @@ export const topThemesData = [
   { theme: "User Experience", count: 142, sentiment: "positive" },
 ];
 
-// Word frequency by sentiment (stacked bar chart)
 export const wordFrequencyData = [
   {
     word: "excellent",
@@ -131,7 +124,6 @@ export const wordFrequencyData = [
   },
 ];
 
-// Sentiment over time (for area chart - more granular)
 export const sentimentOverTimeData = [
   { date: "Week 1", positive: 245, neutral: 102, negative: 68 },
   { date: "Week 2", positive: 280, neutral: 95, negative: 55 },
@@ -139,7 +131,6 @@ export const sentimentOverTimeData = [
   { date: "Week 4", positive: 310, neutral: 88, negative: 42 },
 ];
 
-// Processing steps for the Action Recommendation animation
 export const recommendationProcessingSteps = [
   {
     message: "Analyzing negative feedback trends...",
@@ -156,7 +147,6 @@ export const recommendationProcessingSteps = [
   },
 ];
 
-// AI Action Recommendations
 export const recommendationData = [
   {
     id: 1,
