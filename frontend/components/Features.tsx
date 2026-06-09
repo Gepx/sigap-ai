@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlarmClock,
   BarChart3,
@@ -10,6 +12,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { motion } from "motion/react";
 
 const mvpItems = [
   {
@@ -86,7 +89,13 @@ export default function Features() {
     <>
       <section id="mvp" className="bg-[#F4F9F6] px-5 py-24 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5 }}
+            className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end"
+          >
             <div>
               <p className="text-sm font-black uppercase tracking-[0.25em] text-[#00B074]">
                 MVP scope
@@ -100,11 +109,24 @@ export default function Features() {
               to help a business owner move from review noise to prioritized,
               operational action.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } },
+              hidden: {},
+            }}
+            className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4"
+          >
             {mvpItems.map((item) => (
-              <div
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 30 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+                }}
                 key={item.title}
                 className="group rounded-[1.75rem] bg-gradient-to-br from-[#00B074]/45 via-transparent to-[#1A2E26]/15 p-[1px] transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#00B074]/10"
               >
@@ -124,15 +146,21 @@ export default function Features() {
                     {item.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="features" className="bg-white px-5 py-24 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-3xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5 }}
+            className="mx-auto max-w-3xl text-center"
+          >
             <p className="text-sm font-black uppercase tracking-[0.25em] text-[#00B074]">
               Features
             </p>
@@ -143,11 +171,24 @@ export default function Features() {
               These features support the current product and give the next
               iteration a clearer, more useful direction.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } },
+              hidden: {},
+            }}
+            className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+          >
             {features.map((feature, index) => (
-              <div
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 30 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+                }}
                 key={feature.title}
                 className={`group rounded-[1.75rem] bg-gradient-to-br from-[#00B074]/45 via-[#00B074]/5 to-[#1A2E26]/15 p-[1px] transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#00B074]/10 ${
                   index === 0 || index === 3 ? "lg:col-span-2" : ""
@@ -164,9 +205,9 @@ export default function Features() {
                     {feature.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
     </>

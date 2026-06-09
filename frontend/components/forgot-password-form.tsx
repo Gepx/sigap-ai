@@ -91,7 +91,9 @@ export function ForgotPasswordForm({
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className="text-sm text-[#B43331]">{errors.email.message}</p>
+                  <p className="text-sm text-[#B43331]">
+                    {errors.email.message}
+                  </p>
                 )}
               </Field>
 
@@ -173,10 +175,6 @@ export function ForgotPasswordForm({
           </form>
         </CardContent>
       </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </FieldDescription>
     </div>
   );
 }

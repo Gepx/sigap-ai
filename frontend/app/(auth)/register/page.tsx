@@ -1,6 +1,9 @@
+"use client";
+
 import { RegisterForm } from "@/components/register-form";
 import { Suspense } from "react";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { motion } from "motion/react";
 
 export default function RegisterPage() {
   return (
@@ -10,11 +13,16 @@ export default function RegisterPage() {
       <div className="absolute bottom-[-6rem] left-1/4 size-[28rem] rounded-full bg-[#1A2E26]/8 blur-3xl z-0" />
 
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00B074]/35 to-transparent z-10" />
-      <div className="relative w-full max-w-xl z-20">
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full max-w-xl z-20"
+      >
         <Suspense fallback={<div>Loading...</div>}>
           <RegisterForm />
         </Suspense>
-      </div>
+      </motion.div>
     </BackgroundBeamsWithCollision>
   );
 }

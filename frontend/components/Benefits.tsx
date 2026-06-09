@@ -11,6 +11,7 @@ import {
   ShieldAlert,
   Play,
 } from "lucide-react";
+import { motion } from "motion/react";
 
 const steps = [
   {
@@ -95,19 +96,43 @@ export default function Benefits() {
     <section id="how-it-works" className="bg-white px-5 py-24 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-[#00B074]">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-sm font-black uppercase tracking-[0.25em] text-[#00B074]"
+          >
             How it works
-          </p>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-[#1A2E26] sm:text-5xl">
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mt-4 text-3xl font-black tracking-tight text-[#1A2E26] sm:text-5xl"
+          >
             From raw reviews to a clear response plan.
-          </h2>
-          <p className="mt-5 text-base font-medium leading-8 text-[#1A2E26]/60">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-5 text-base font-medium leading-8 text-[#1A2E26]/60"
+          >
             The flow stays simple for business users: upload the feedback, let
             Sigap.ai read the perception signal, then act on the result.
-          </p>
+          </motion.p>
         </div>
 
-        <div className="mt-10 flex items-start">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-10 flex items-start"
+        >
           <button className="group flex items-center gap-3 rounded-full border border-[#00B074]/20 bg-[#F4F9F6] py-1.5 pl-1.5 pr-5 transition-all duration-300 hover:border-[#00B074]/30 hover:bg-[#00B074]/10 hover:shadow-md">
             <span className="flex size-8 items-center justify-center rounded-full bg-[#00B074] text-white shadow-sm transition-transform duration-300 group-hover:scale-110">
               <Play className="ml-1 size-4 fill-current" />
@@ -116,11 +141,24 @@ export default function Benefits() {
               Watch video
             </span>
           </button>
-        </div>
+        </motion.div>
 
-        <div className="mt-2 grid gap-5 lg:grid-cols-3">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            visible: { transition: { staggerChildren: 0.1 } },
+            hidden: {},
+          }}
+          className="mt-2 grid gap-5 lg:grid-cols-3"
+        >
           {steps.map((step) => (
-            <div
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+              }}
               key={step.number}
               className="group relative rounded-[1.75rem] bg-gradient-to-br from-[#00B074]/45 via-[#00B074]/10 to-[#1A2E26]/15 p-[1px] transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#00B074]/10"
             >
@@ -140,11 +178,17 @@ export default function Benefits() {
                   {step.description}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="mt-8 rounded-[2rem] bg-gradient-to-br from-[#00B074] via-[#77E1B4] to-[#1A2E26] p-[1px]">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+          className="mt-8 rounded-[2rem] bg-gradient-to-br from-[#00B074] via-[#77E1B4] to-[#1A2E26] p-[1px]"
+        >
           <div className="grid gap-8 rounded-[calc(2rem-1px)] bg-[#F4F9F6] p-6 lg:grid-cols-[0.9fr_1.1fr] lg:p-8">
             <div className="flex flex-col justify-center">
               <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-[#00B074] text-white shadow-lg shadow-[#00B074]/20">
@@ -306,7 +350,7 @@ export default function Benefits() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
