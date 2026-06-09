@@ -4,6 +4,7 @@ import { ForgotPasswordForm } from "@/components/forgot-password-form";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 import { motion } from "motion/react";
 import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   return (
@@ -19,7 +20,13 @@ export default function ForgotPasswordPage() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-xl z-20"
       >
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={
+            <div className="flex w-full items-center justify-center p-10">
+              <Loader2 className="size-8 animate-spin text-[#00B074]" />
+            </div>
+          }
+        >
           <ForgotPasswordForm />
         </Suspense>
       </motion.div>
