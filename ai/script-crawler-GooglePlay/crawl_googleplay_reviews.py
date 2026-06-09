@@ -119,7 +119,7 @@ APP_CONFIGS = [
 
     # dataset netral gofood dan grabfood: dengan rating 3 dan keyword layanan f&b
     {
-        "group": "delivery netral",
+        "group": "delivery-netral",
         "app_name": "Gojek / Gofood netral",
         "app_id": "com.gojek.app",
         "output": "gofood_netral_googleplay_reviews.csv",
@@ -129,7 +129,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "delivery netral",
+        "group": "delivery-netral",
         "app_name": "Grab / Grabfood netral",
         "app_id": "com.grabtaxi.passenger",
         "output": "grabfood_netral_googleplay_reviews.csv",
@@ -140,7 +140,7 @@ APP_CONFIGS = [
 
     # dataset netral dari aplikasi resmi f&b Indonesia: rating 3 bahasa Indonesia
     {
-        "group": "fnb netral",
+        "group": "fnb-netral",
         "app_name": "Domino's Pizza Indonesia",
         "app_id": "com.phonegap.dominos",
         "output": "dominos_netral_googleplay_reviews.csv",
@@ -150,7 +150,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb netral",
+        "group": "fnb-netral",
         "app_name": "Pizza Hut Indonesia",
         "app_id": "com.pizzahut.phd",
         "output": "pizzahut_netral_googleplay_reviews.csv",
@@ -160,7 +160,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb netral",
+        "group": "fnb-netral",
         "app_name": "Kopi Kenangan Indonesia",
         "app_id": "com.kopikenangan",
         "output": "kopikenangan_netral_googleplay_reviews.csv",
@@ -170,7 +170,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb netral",
+        "group": "fnb-netral",
         "app_name": "Starbucks Indonesia",
         "app_id": "com.starbucks.id",
         "output": "starbucks_netral_googleplay_reviews.csv",
@@ -181,7 +181,7 @@ APP_CONFIGS = [
 
     
     {
-        "group": "fnb netral",
+        "group": "fnb-netral",
         "app_name": "KFCKU",
         "app_id": "com.kfc.mobile",
         "output": "kfcku_netral_googleplay_reviews.csv",
@@ -190,9 +190,8 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
-    # dataset netral tambahan dari aplikasi resmi f&b: dengan rating 3 bahasa Indonesia
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "Fore Coffee",
         "app_id": "coffee.fore2.fore",
         "output": "forecoffee_netral_googleplay_reviews.csv",
@@ -202,7 +201,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "TOMORO Coffee",
         "app_id": "com.tomoro.indonesia.android",
         "output": "tomoro_netral_googleplay_reviews.csv",
@@ -212,7 +211,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "HOKBENAJA",
         "app_id": "id.co.hokben.revamp",
         "output": "hokben_netral_googleplay_reviews.csv",
@@ -222,7 +221,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "Richeese Factory Indonesia",
         "app_id": "com.richeese.id",
         "output": "richeese_netral_googleplay_reviews.csv",
@@ -232,7 +231,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "F&B ID / Chatime Indonesia",
         "app_id": "com.klg.chatime",
         "output": "chatime_netral_googleplay_reviews.csv",
@@ -242,7 +241,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "Burger King Indonesia",
         "app_id": "burgerking.id.android",
         "output": "burgerking_netral_googleplay_reviews.csv",
@@ -252,7 +251,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "fnb-netral-baru",
+        "group": "fnb-netral",
         "app_name": "McDonald's Indonesia",
         "app_id": "com.mcdonalds.mobileapp",
         "output": "mcdonalds_netral_googleplay_reviews.csv",
@@ -292,9 +291,8 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 150000},
 
-    # dataset netral v2 dari aplikasi food delivery: tidak menduplikat dataset lama
     {
-        "group": "fnb-netral-ekstra",
+        "group": "fnb-netral-v2",
         "app_name": "Gojek / GoFood Netral v2",
         "app_id": "com.gojek.app",
         "output": "gofood_netral_v2_googleplay_reviews.csv",
@@ -304,7 +302,7 @@ APP_CONFIGS = [
         "default_max_raw": 150000},
 
     {
-        "group": "fnb-netral-ekstra",
+        "group": "fnb-netral-v2",
         "app_name": "Grab / GrabFood Netral v2",
         "app_id": "com.grabtaxi.passenger",
         "output": "grabfood_netral_v2_googleplay_reviews.csv",
@@ -314,7 +312,7 @@ APP_CONFIGS = [
         "default_max_raw": 150000},
 
     {
-        "group": "fnb-netral-ekstra",
+        "group": "fnb-netral-v2",
         "app_name": "Shopee Indonesia / ShopeeFood Netral v2",
         "app_id": "com.shopee.id",
         "output": "shopeefood_netral_v2_googleplay_reviews.csv",
@@ -323,9 +321,9 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 150000},
 
-    # dataset netral tambahan dari aplikasi grocery Indonesia: yang rating 3 dengan keyword f&b
+    # dataset netral dari aplikasi grocery Indonesia: yang rating 3 dengan keyword f&b
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "Alfagift",
         "app_id": "com.alfamart.alfagift",
         "output": "alfagift_netral_googleplay_reviews.csv",
@@ -335,7 +333,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "Klik Indomaret",
         "app_id": "com.indomaret.klikindomaret",
         "output": "klikindomaret_netral_googleplay_reviews.csv",
@@ -345,7 +343,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "Sayurbox",
         "app_id": "com.sayurbox",
         "output": "sayurbox_netral_googleplay_reviews.csv",
@@ -355,7 +353,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "AlloFresh",
         "app_id": "id.allofresh.ecommerce",
         "output": "allofresh_netral_googleplay_reviews.csv",
@@ -365,7 +363,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "ASTRO versi baru",
         "app_id": "com.astro.shop",
         "output": "astro_full_netral_googleplay_reviews.csv",
@@ -375,7 +373,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "HappyFresh",
         "app_id": "com.happyfresh.android",
         "output": "happyfresh_netral_googleplay_reviews.csv",
@@ -385,7 +383,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "My Super Indo",
         "app_id": "id.co.superindo.mysuperindo",
         "output": "superindo_netral_googleplay_reviews.csv",
@@ -395,7 +393,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "Hypermart Online",
         "app_id": "com.hypermart.mobile",
         "output": "hypermart_netral_googleplay_reviews.csv",
@@ -405,7 +403,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "LOTTE Mart Mall",
         "app_id": "com.lmi.indo",
         "output": "lottemart_netral_googleplay_reviews.csv",
@@ -415,7 +413,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "GoBiz / GoFood Merchant",
         "app_id": "com.gojek.resto",
         "output": "gobiz_netral_googleplay_reviews.csv",
@@ -424,9 +422,8 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
-    # dataset netral tambahan dari aplikasi merchant f&b: yang memiliki rating 3
     {
-        "group": "merchant-netral",
+        "group": "grocery-netral",
         "app_name": "GrabMerchant",
         "app_id": "com.grab.merchant",
         "output": "grabmerchant_netral_googleplay_reviews.csv",
@@ -436,7 +433,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "merchant-netral",
+        "group": "grocery-netral",
         "app_name": "Shopee Partner",
         "app_id": "com.shopeepay.merchant.id",
         "output": "shopeepartner_netral_googleplay_reviews.csv",
@@ -445,9 +442,8 @@ APP_CONFIGS = [
         "require_indonesian": True,
         "default_max_raw": 100000},
 
-    # dataset negatif tambahan dari aplikasi merchant f&b: yang memiliki rating 1 dan 2
     {
-        "group": "merchant-negatif",
+        "group": "grocery-negatif",
         "app_name": "GoBiz / GoFood Merchant negatif",
         "app_id": "com.gojek.resto",
         "output": "gobiz_negatif_googleplay_reviews.csv",
@@ -457,7 +453,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "merchant-negatif",
+        "group": "grocery-negatif",
         "app_name": "GrabMerchant negatif",
         "app_id": "com.grab.merchant",
         "output": "grabmerchant_negatif_googleplay_reviews.csv",
@@ -467,7 +463,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "merchant-negatif",
+        "group": "grocery-negatif",
         "app_name": "Shopee Partner negatif",
         "app_id": "com.shopeepay.merchant.id",
         "output": "shopeepartner_negatif_googleplay_reviews.csv",
@@ -477,7 +473,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "ASTRO",
         "app_id": "com.astro.shop",
         "output": "astro_netral_googleplay_reviews.csv",
@@ -487,7 +483,7 @@ APP_CONFIGS = [
         "default_max_raw": 100000,},
 
     {
-        "group": "grocery-netral-baru",
+        "group": "grocery-netral",
         "app_name": "Segari",
         "app_id": "id.segari.customer",
         "output": "segari_netral_googleplay_reviews.csv",
@@ -647,7 +643,7 @@ def parse_args():
 
     parser.add_argument(
         "--group",
-        choices=["all", "delivery-netral", "fnb-netral", "grocery-netral", "fnb-netral-baru", "fnb-netral-v2", "fnb-netral-ekstra", "grocery-netral-baru", "merchant-netral", "merchant-negatif"],
+        choices=["all", "delivery-netral", "fnb-netral", "fnb-netral-v2", "grocery-netral", "grocery-negatif"],
         default="all",
         help="Kelompok dataset yang dicrawl. Default: all")
 
