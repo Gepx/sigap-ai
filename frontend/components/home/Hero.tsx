@@ -8,7 +8,7 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import { HeroScrollAnimation } from "@/components/hero-scroll-animation";
+import { HeroScrollAnimation } from "@/components/home/hero-scroll-animation";
 
 const sentimentBars = [
   { label: "Positive", value: "58%", color: "bg-[#00B074]", width: "w-[58%]" },

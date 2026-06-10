@@ -10,6 +10,7 @@ import AuthRouter from "./routes/auth.route.js";
 import RoleRouter from "./routes/role.route.js";
 import PermissionRouter from "./routes/permission.route.js";
 import UserRouter from "./routes/user.route.js";
+import AiRouter from "./routes/ai.route.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(cookieParser());
 app.use(globalLimiter);
 
 app.use("/api/auth", AuthRouter);
+app.use("/api/ai", AiRouter);
 
 app.use(authMiddleware);
 

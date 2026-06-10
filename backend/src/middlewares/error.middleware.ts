@@ -44,6 +44,8 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
+  console.error(err);
+
   const message =
     process.env.NODE_ENV === "development"
       ? err.message

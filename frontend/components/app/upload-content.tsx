@@ -15,9 +15,10 @@ import { toast } from "sonner";
 
 interface UploadContentProps {
   onUpload: (fileName: string) => void;
+  isProcessing?: boolean;
 }
 
-export default function UploadContent({ onUpload }: UploadContentProps) {
+export default function UploadContent({ onUpload, isProcessing = false }: UploadContentProps) {
   const { data: session } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -168,11 +169,11 @@ export default function UploadContent({ onUpload }: UploadContentProps) {
                   <Button
                     type="button"
                     onClick={confirmUpload}
-                    disabled={isConfirming}
+                    disabled={isConfirming || isProcessing}
                     className="h-11 rounded-full bg-[#00B074] text-white shadow-lg shadow-[#00B074]/20 transition hover:-translate-y-0.5 hover:bg-[#079968]"
                   >
                     <Upload className="size-4" />
-                    Confirm upload
+                    {isProcessing ? "Processing..." : "Confirm upload"}
                     <ArrowRight className="size-4" />
                   </Button>
                 </div>

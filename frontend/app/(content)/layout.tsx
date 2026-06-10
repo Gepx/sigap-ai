@@ -1,7 +1,7 @@
 import React from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/app/app-sidebar";
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
