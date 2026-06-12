@@ -1,0 +1,2 @@
+analyzer,ngram_range,max_features,min_df,max_df,logreg__C,logreg__class_weight,logreg__max_iter,logreg__solver
+word,"(1, 2)",100000,2,0.95,5,,3000,liblinear

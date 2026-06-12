@@ -1,0 +1,2 @@
+Model,Best_C,Validation_F1,Test_F1,Validation_Accuracy,Test_Accuracy,Selected_Features,Word_TFIDF_Max_Features,Char_TFIDF_Max_Features
+LinearSVC,0.5,0.7573,0.7636,0.7579,0.7645,80000,50000,30000
