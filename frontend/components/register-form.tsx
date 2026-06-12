@@ -20,7 +20,7 @@ import api from "@/lib/api";
 import { errorHandler } from "@/lib/handler/errorHandler";
 import { toast } from "sonner";
 import { useState } from "react";
-import { ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export function RegisterForm({
   className,
@@ -57,7 +57,6 @@ export function RegisterForm({
     onSuccess: () => {
       toast.success("Account successfully registered!");
       reset();
-
       router.push(callbackUrl ?? "/login");
     },
   });
@@ -82,7 +81,7 @@ export function RegisterForm({
               </div>
 
               <Field>
-                <FieldLabel htmlFor="name">Name</FieldLabel>
+                <FieldLabel htmlFor="name">Full Name</FieldLabel>
                 <Input
                   id="name"
                   type="text"
@@ -90,9 +89,7 @@ export function RegisterForm({
                   {...register("name")}
                 />
                 {errors.name && (
-                  <p className="text-sm text-[#B43331]">
-                    {errors.name.message}
-                  </p>
+                  <p className="text-sm text-[#B43331]">{errors.name.message}</p>
                 )}
               </Field>
 
@@ -101,13 +98,11 @@ export function RegisterForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="test@example.com"
+                  placeholder="john@example.com"
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className="text-sm text-[#B43331]">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-sm text-[#B43331]">{errors.email.message}</p>
                 )}
               </Field>
 
@@ -132,9 +127,7 @@ export function RegisterForm({
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-[#B43331]">
-                    {errors.password.message}
-                  </p>
+                  <p className="text-sm text-[#B43331]">{errors.password.message}</p>
                 )}
               </Field>
 

@@ -126,7 +126,6 @@ export const updateUserController = async (
         "uuid",
         "name",
         "email",
-        "avatar",
         "created_at",
         "updated_at",
       ]);
@@ -162,7 +161,8 @@ export const updateUserProfileController = async (
         "uuid",
         "name",
         "email",
-        "avatar",
+        "business_name",
+        "business_type",
         "updated_at",
       ]);
 

@@ -14,12 +14,12 @@ export const updateUserBodySchema = z.object({
   name: z.string(),
   email: z.string().email(),
   role_id: z.coerce.number().int().positive(),
-  avatar: z.string().nullable().optional(),
 });
 
 export const updateProfileBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
-  avatar: z.string().nullable().optional(),
+  business_name: z.string().min(2).optional(),
+  business_type: z.string().min(2).optional(),
 });
 
 export const changeUserPasswordSchema = z.object({

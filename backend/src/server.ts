@@ -10,6 +10,7 @@ import AuthRouter from "./routes/auth.route.js";
 import RoleRouter from "./routes/role.route.js";
 import PermissionRouter from "./routes/permission.route.js";
 import UserRouter from "./routes/user.route.js";
+import SessionRouter from "./routes/session.route.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use(authMiddleware);
 app.use("/api/roles", RoleRouter);
 app.use("/api/permissions", PermissionRouter);
 app.use("/api/users", UserRouter);
+app.use("/api/sessions", SessionRouter);
 
 app.use(errorHandler);
 

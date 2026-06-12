@@ -19,6 +19,8 @@ declare module "next-auth" {
     role_name?: string;
     menus?: string[];
     avatar?: string | null;
+    business_name?: string | null;
+    business_type?: string | null;
   }
 
   interface Session {
@@ -31,6 +33,8 @@ declare module "next-auth" {
       role_name?: string;
       menus?: string[];
       avatar?: string | null;
+      business_name?: string | null;
+      business_type?: string | null;
     } & DefaultSession["user"];
   }
 }
@@ -45,5 +49,7 @@ declare module "next-auth/jwt" {
     role_name?: string;
     menus?: string[];
     avatar?: string | null;
+    business_name?: string | null;
+    business_type?: string | null;
   }
 }

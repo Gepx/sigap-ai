@@ -67,9 +67,9 @@ const authOptions: NextAuthConfig = {
             role_name: string;
             role_id: string;
             avatar?: string | null;
+            business_name?: string | null;
+            business_type?: string | null;
             token: string;
-            // permission: ISessionPermission[];
-            // menus: string[];
           };
         };
 
@@ -82,11 +82,11 @@ const authOptions: NextAuthConfig = {
           email: data.data.email,
           name: data.data.name,
           token: data.data.token,
-          // permission: data.data.permission,
           role_id: data.data.role_id,
           role_name: data.data.role_name,
-          // menus: data.data.menus,
           avatar: data.data.avatar,
+          business_name: data.data.business_name ?? null,
+          business_type: data.data.business_type ?? null,
         };
       },
     }),
@@ -106,10 +106,14 @@ const authOptions: NextAuthConfig = {
         token.permission = user.permission;
         token.menus = user.menus;
         token.avatar = user.avatar;
+        token.business_name = user.business_name ?? null;
+        token.business_type = user.business_type ?? null;
       }
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;
         if (session.avatar !== undefined) token.avatar = session.avatar;
+        if (session.business_name !== undefined) token.business_name = session.business_name;
+        if (session.business_type !== undefined) token.business_type = session.business_type;
       }
       return token;
     },
@@ -123,6 +127,8 @@ const authOptions: NextAuthConfig = {
         session.user.permission = token.permission;
         session.user.menus = token.menus;
         session.user.avatar = token.avatar;
+        session.user.business_name = token.business_name ?? null;
+        session.user.business_type = token.business_type ?? null;
         if (token.name) session.user.name = token.name;
       }
       return session;

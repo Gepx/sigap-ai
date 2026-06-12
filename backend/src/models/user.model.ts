@@ -93,7 +93,7 @@ export class UserModel extends BaseModel {
   }
 
   async updateUser(uuid: string, payload: UpdateUserBodySchema) {
-    const { name, email, role_id, avatar } = payload;
+    const { name, email, role_id } = payload;
     const query = `
       UPDATE 
         users 
@@ -101,31 +101,31 @@ export class UserModel extends BaseModel {
         updated_at = NOW(), 
         name = $1, 
         email = $2, 
-        role_id = $3,
-        avatar = $4
-      WHERE uuid = $5 
+        role_id = $3
+      WHERE uuid = $4 
         AND deleted_at IS NULL
       RETURNING *
     `;
-    const result = await this._db.query(query, [name, email, role_id, avatar, uuid]);
+    const result = await this._db.query(query, [name, email, role_id, uuid]);
     const user = result.rows[0] as User;
     return user;
   }
 
   async updateUserProfile(email: string, payload: UpdateProfileBodySchema) {
-    const { name, avatar } = payload;
+    const { name, business_name, business_type } = payload;
     const query = `
       UPDATE 
         users 
       SET 
         updated_at = NOW(), 
-        name = $1, 
-        avatar = $2
-      WHERE email = $3 
+        name = $1,
+        business_name = COALESCE($2, business_name),
+        business_type = COALESCE($3, business_type)
+      WHERE email = $4 
         AND deleted_at IS NULL
       RETURNING *
     `;
-    const result = await this._db.query(query, [name, avatar, email]);
+    const result = await this._db.query(query, [name, business_name ?? null, business_type ?? null, email]);
     const user = result.rows[0] as User;
     return user;
   }

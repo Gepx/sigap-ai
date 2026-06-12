@@ -9,19 +9,22 @@ import {
   Sparkles,
   ShieldCheck,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import api from "@/lib/api";
 
 interface UploadContentProps {
-  onUpload: (fileName: string) => void;
+  onUpload: (fileName: string, sessionUuid: string) => void;
 }
 
 export default function UploadContent({ onUpload }: UploadContentProps) {
   const { data: session } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStep, setUploadStep] = useState<"idle" | "uploading" | "analyzing">("idle");
 
   const userName = session?.user?.name ?? "User";
 
@@ -44,29 +47,55 @@ export default function UploadContent({ onUpload }: UploadContentProps) {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && droppedFile.name.endsWith(".csv")) {
       setFile(droppedFile);
+    } else {
+      toast.error("Only CSV files are supported.");
     }
   }, []);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files?.[0];
-      if (selectedFile) {
-        setFile(selectedFile);
-      }
+      if (selectedFile) setFile(selectedFile);
     },
     [],
   );
 
   const removeFile = () => setFile(null);
 
-  const confirmUpload = () => {
-    if (!file || isConfirming) {
-      return;
-    }
+  const confirmUpload = async () => {
+    if (!file || isUploading) return;
 
-    setIsConfirming(true);
-    toast.success("CSV file uploaded successfully!");
-    onUpload(file.name);
+    setIsUploading(true);
+    setUploadStep("uploading");
+    try {
+      // Step 1: Upload CSV
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await api.post("/api/sessions", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // Backend returns { data: { uuid, title, file_name } }
+      const historyUuid: string = res.data.data.uuid;
+      if (!historyUuid) {
+        throw new Error("Server did not return a valid session ID.");
+      }
+
+      toast.success("File uploaded! Starting AI analysis...");
+      setUploadStep("analyzing");
+
+      // Step 2: Trigger analysis
+      await api.post(`/api/sessions/${historyUuid}/analyze`, {});
+
+      toast.success("Analysis complete! Loading dashboard...");
+      onUpload(file.name, historyUuid);
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error("Upload or analysis failed. Please check your file and try again.");
+      setIsUploading(false);
+      setUploadStep("idle");
+    }
   };
 
   const fileLabel = file ? `${(file.size / 1024).toFixed(1)} KB` : "CSV only";
@@ -168,12 +197,26 @@ export default function UploadContent({ onUpload }: UploadContentProps) {
                   <Button
                     type="button"
                     onClick={confirmUpload}
-                    disabled={isConfirming}
-                    className="h-11 rounded-full bg-[#00B074] text-white shadow-lg shadow-[#00B074]/20 transition hover:-translate-y-0.5 hover:bg-[#079968]"
+                    disabled={isUploading}
+                    className="h-11 rounded-full bg-[#00B074] text-white shadow-lg shadow-[#00B074]/20 transition hover:-translate-y-0.5 hover:bg-[#079968] disabled:opacity-70"
                   >
-                    <Upload className="size-4" />
-                    Confirm upload
-                    <ArrowRight className="size-4" />
+                    {uploadStep === "uploading" ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : uploadStep === "analyzing" ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Analyzing reviews...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="size-4" />
+                        Confirm upload
+                        <ArrowRight className="size-4" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

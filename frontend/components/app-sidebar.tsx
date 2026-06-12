@@ -17,20 +17,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/nav-user";
-import { Sparkles, SquarePen, Search } from "lucide-react";
+import { Sparkles, SquarePen, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/api";
 
-const historyItems = [
-  { id: 1, title: "Coffee chain reviews", detail: "Processed 1,247 rows" },
-  { id: 2, title: "New delivery feedback", detail: "Negative spike detected" },
-  { id: 3, title: "Branch sentiment report", detail: "Ready for export" },
-  { id: 4, title: "Product quality scan", detail: "3 top themes found" },
-  {
-    id: 5,
-    title: "Support response audit",
-    detail: "Recommendation generated",
-  },
-];
+
+interface SessionItem {
+  uuid: string;
+  title: string;        // e.g. "Kuliner — 11 Jun 2026"
+  detail: string | null; // e.g. "1.247 ulasan · 3 krisis terdeteksi" (null sebelum analisis)
+  created_at: string;
+}
 
 function SidebarHoverTrigger() {
   const { isMobile, state } = useSidebar();
@@ -50,10 +48,18 @@ function SidebarHoverTrigger() {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  const filteredHistory = historyItems.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.detail.toLowerCase().includes(searchQuery.toLowerCase()),
+  const { data: sessions, isLoading: loadingSessions } = useQuery({
+    queryKey: ["sessions-history"],
+    queryFn: async () => {
+      const res = await api.get("/api/sessions");
+      return res.data.data as SessionItem[];
+    },
+    staleTime: 30_000, // re-fetch every 30s at most
+  });
+
+  const filteredHistory = (sessions ?? []).filter((item) =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.detail ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -117,34 +123,45 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Recent analyses</SidebarGroupLabel>
+            <SidebarGroupLabel>Riwayat analisis</SidebarGroupLabel>
             <SidebarGroupContent>
-              {filteredHistory.length > 0 ? (
+              {loadingSessions ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : filteredHistory.length > 0 ? (
                 <SidebarMenu>
                   {filteredHistory.map((item, index) => (
-                    <SidebarMenuItem key={item.id}>
+                    <SidebarMenuItem key={item.uuid}>
                       <SidebarMenuButton
+                        asChild
                         className={`h-auto py-2 ${
                           index === 0 && searchQuery === ""
                             ? "bg-sidebar-accent text-sidebar-accent-foreground"
                             : ""
                         }`}
                       >
-                        <div className="grid gap-0.5 text-left">
-                          <span className="truncate text-sm font-medium">
-                            {item.title}
-                          </span>
-                          <span className="truncate text-xs text-muted-foreground">
-                            {item.detail}
-                          </span>
-                        </div>
+                        <Link href={`/app?session=${item.uuid}`}>
+                          <div className="grid gap-0.5 text-left">
+                            <span className="truncate text-sm font-medium">
+                              {item.title}
+                            </span>
+                            <span className="truncate text-xs text-muted-foreground">
+                              {item.detail ?? new Date(item.created_at).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                          </div>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
               ) : (
                 <p className="px-2 py-4 text-center text-xs text-muted-foreground">
-                  No chats found.
+                  {searchQuery ? "Tidak ditemukan." : "Belum ada analisis."}
                 </p>
               )}
             </SidebarGroupContent>

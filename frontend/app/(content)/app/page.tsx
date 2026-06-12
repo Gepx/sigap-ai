@@ -10,22 +10,31 @@ type ViewState = "upload" | "processing" | "dashboard";
 export default function AppPage() {
   const [view, setView] = useState<ViewState>("upload");
   const [fileName, setFileName] = useState("");
+  const [sessionUuid, setSessionUuid] = useState("");
 
-  const handleUpload = (name: string) => {
+  const handleUpload = (name: string, uuid: string) => {
     setFileName(name);
+    setSessionUuid(uuid);
     setView("processing");
   };
 
-  const handleComplete = () => {
+  const handleComplete = (uuid: string) => {
+    setSessionUuid(uuid);
     setView("dashboard");
   };
 
   if (view === "processing") {
-    return <ProcessingView fileName={fileName} onComplete={handleComplete} />;
+    return (
+      <ProcessingView
+        fileName={fileName}
+        sessionUuid={sessionUuid}
+        onComplete={handleComplete}
+      />
+    );
   }
 
   if (view === "dashboard") {
-    return <DashboardView fileName={fileName} />;
+    return <DashboardView sessionUuid={sessionUuid} />;
   }
 
   return <UploadContent onUpload={handleUpload} />;

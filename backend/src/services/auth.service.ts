@@ -55,6 +55,7 @@ export const loginService =
     }
 
     const token = generateToken({
+      id: user.id,
       uuid: user.uuid,
       name: user.name,
       email: user.email,

@@ -4,11 +4,17 @@ import { BaseModel } from "./base.model.js";
 
 export class AuthModel extends BaseModel {
   async createUser(payload: RegisterSchema) {
-    const query = `INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+    const query = `
+      INSERT INTO users (name, email, password, business_name, business_type, role_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `;
     const result = await this._db.query(query, [
       payload.name,
       payload.email,
       payload.password,
+      payload.business_name,
+      payload.business_type,
       payload.role_id,
     ]);
 

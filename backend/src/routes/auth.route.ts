@@ -4,6 +4,7 @@ import {
   registerController,
   forgotPasswordController,
   logoutController,
+  getMeController,
 } from "../controllers/auth.controller.js";
 import { validateSchema } from "../middlewares/validate.middleware.js";
 import {
@@ -12,6 +13,7 @@ import {
   forgotPasswordSchema,
 } from "../schemas/auth.schema.js";
 import { authLimiter } from "../utils/rateLimiter.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const AuthRouter: Router = Router();
 
@@ -29,5 +31,7 @@ AuthRouter.post(
   validateSchema(forgotPasswordSchema, "body"),
   forgotPasswordController,
 );
+// GET current user profile (requires auth)
+AuthRouter.get("/me", authMiddleware, getMeController);
 
 export default AuthRouter;

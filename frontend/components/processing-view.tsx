@@ -1,43 +1,68 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Sparkles, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Sparkles, CheckCircle2, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
 import { processingSteps } from "@/lib/data";
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 interface ProcessingViewProps {
   fileName: string;
-  onComplete: () => void;
+  sessionUuid: string;
+  onComplete: (sessionUuid: string) => void;
 }
 
 export default function ProcessingView({
   fileName,
+  sessionUuid,
   onComplete,
 }: ProcessingViewProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const hasStarted = useRef(false);
 
   useEffect(() => {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
+    // ── Animate steps (independent of API) ──
     const interval = setInterval(() => {
       setCurrentStepIndex((prev) => {
-        if (prev < processingSteps.length - 1) {
-          return prev + 1;
-        }
-        clearInterval(interval);
+        if (prev < processingSteps.length - 1) return prev + 1;
         return prev;
       });
     }, 1500);
 
-    const totalTime = processingSteps.length * 1500 + 1000;
-    const timeout = setTimeout(() => {
-      setIsComplete(true);
-      setTimeout(() => onComplete(), 500);
-    }, totalTime);
+    // ── Trigger real AI analysis ──
+    const runAnalysis = async () => {
+      try {
+        await api.post(
+          `/api/sessions/${sessionUuid}/analyze`,
+          {},
+          { timeout: 180_000 }, // 3-minute timeout matches backend
+        );
 
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
+        clearInterval(interval);
+        setCurrentStepIndex(processingSteps.length - 1);
+        setIsComplete(true);
+        setTimeout(() => onComplete(sessionUuid), 800);
+      } catch (err: unknown) {
+        clearInterval(interval);
+        const msg =
+          (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+          "Analysis failed. Please try again.";
+        setErrorMessage(msg);
+        setHasError(true);
+        toast.error(msg);
+      }
     };
-  }, [onComplete]);
+
+    runAnalysis();
+
+    return () => clearInterval(interval);
+  }, [sessionUuid, onComplete]);
 
   const progress = Math.round(
     ((currentStepIndex + 1) / processingSteps.length) * 100,
@@ -57,13 +82,31 @@ export default function ProcessingView({
             AI processing
           </div>
           <h2 className="mt-5 text-4xl font-black tracking-tight text-[#1A2E26] sm:text-5xl">
-            {isComplete ? "Analysis complete" : "Thinking through the data"}
+            {hasError
+              ? "Analysis failed"
+              : isComplete
+                ? "Analysis complete"
+                : "Thinking through the data"}
           </h2>
           <p className="mt-4 text-base font-medium leading-8 text-[#1A2E26]/62">
-            {fileName} • Sigap.ai is reading the file, normalizing text, and
-            preparing the sentiment output.
+            {hasError
+              ? errorMessage
+              : `${fileName} • Sigap.ai is reading the file, normalizing text, and preparing the sentiment output.`}
           </p>
         </div>
+
+        {hasError && (
+          <div className="rounded-[2rem] border border-red-100 bg-red-50 p-6 text-center shadow-sm">
+            <AlertCircle className="mx-auto mb-3 size-10 text-red-400" />
+            <p className="text-sm font-medium text-red-700">{errorMessage}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 rounded-full bg-red-500 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-600"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
 
         {/* Single unified card */}
         <div className="rounded-[2rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-2xl shadow-[#00B074]/10 backdrop-blur sm:p-6 lg:p-8">

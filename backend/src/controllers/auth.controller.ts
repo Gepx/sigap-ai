@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { createTransaction } from "../config/transaction.js";
 import { pool } from "../config/database.js";
 import { AuthModel } from "../models/auth.model.js";
+import { UserModel } from "../models/user.model.js";
 import {
   loginService,
   registerService,
@@ -95,6 +96,40 @@ export const forgotPasswordController = async (
           ...user,
         },
       });
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const getMeController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userModel = new UserModel(pool);
+    const user = await userModel.getDetails(req.user!.email);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = user as typeof user & { password: string };
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile retrieved successfully.",
+      data: {
+        uuid:          safeUser.uuid,
+        name:          safeUser.name,
+        email:         safeUser.email,
+        business_name: (safeUser as Record<string, unknown>).business_name ?? null,
+        business_type: (safeUser as Record<string, unknown>).business_type ?? null,
+        role_name:     safeUser.role_name,
+        created_at:    safeUser.created_at,
+        updated_at:    safeUser.updated_at,
+      },
     });
   } catch (error) {
     next(error);

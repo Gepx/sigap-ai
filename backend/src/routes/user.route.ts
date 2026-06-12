@@ -18,28 +18,34 @@ import {
 
 const UserRouter: Router = Router();
 
+// ── Static routes first (must be before /:uuid) ───────────────────────────────
+
 UserRouter.get(
   "/",
   validateSchema(getUserEmailSchema, "query"),
   getAllUserController,
 );
 
-UserRouter.get(
-  "/:uuid",
-  validateSchema(userParamsSchema, "params"),
-  getUserByIdController,
-);
-
+// POST /change-password — static, must be before /:uuid
 UserRouter.post(
   "/change-password",
   validateSchema(changeUserPasswordSchema, "body"),
   changePasswordUserController,
 );
 
+// PUT /profile — static, must be before /:uuid
 UserRouter.put(
   "/profile",
   validateSchema(updateProfileBodySchema, "body"),
   updateUserProfileController,
+);
+
+// ── Parameterized routes ───────────────────────────────────────────────────────
+
+UserRouter.get(
+  "/:uuid",
+  validateSchema(userParamsSchema, "params"),
+  getUserByIdController,
 );
 
 UserRouter.put(
