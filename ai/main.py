@@ -48,14 +48,11 @@ class BatchPredictResponse(BaseModel):
 
 
 class IndoBERTModelLoader:
-    def __init__(self, model_dir: Path):
-        self.model_dir = model_dir
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            str(model_dir / "tokenizer"), use_fast=True
-        )
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            str(model_dir / "model")
-        )
+    def __init__(self, model_repo: str):
+        self.model_repo = model_repo
+        print(f"Downloading/Loading model from Hugging Face: {model_repo}...")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_repo, use_fast=True)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_repo)
 
         if torch.backends.mps.is_available():
             self.model = self.model.to("mps")
@@ -64,13 +61,13 @@ class IndoBERTModelLoader:
 
         self.model.eval()
 
-        import json
-
-        with open(model_dir / "label_mapping.json", "r") as f:
-            mapping_data = json.load(f)
+        if hasattr(self.model.config, "id2label") and self.model.config.id2label:
             self.inverse_label_mapping = {
-                int(k): v for k, v in mapping_data["inverse_label_mapping"].items()
+                int(k): str(v) for k, v in self.model.config.id2label.items()
             }
+        else:
+            print("Warning: id2label not found in HF config. Using default mapping.")
+            self.inverse_label_mapping = {0: "Negative", 1: "Neutral", 2: "Positive"}
 
     def _build_text(self, req: PredictRequest) -> str:
         return (
@@ -114,7 +111,7 @@ class IndoBERTModelLoader:
         )
 
 
-# ─── Initialization ────────────────────────────────────────────────────
+# ─── Initialization ────
 model_loader = None
 loaded_model_type = "None"
 loaded_model_id = "None"
@@ -124,20 +121,15 @@ loaded_metrics = {}
 def load_best_model():
     global model_loader, loaded_model_type, loaded_model_id, loaded_metrics
 
-    model_id = "model3"
-    model_dir = ARTIFACTS_DIR / model_id
-    if not model_dir.exists():
-        print(f"WARNING: Model directory {model_dir} not found!")
-        return
+    model_id = "suryahanjaya/sigap-ai"
 
     print(f"Loading model: {model_id}")
 
     try:
-        model_loader = IndoBERTModelLoader(model_dir)
+        model_loader = IndoBERTModelLoader(model_id)
         loaded_model_type = "IndoBERT"
-        loaded_model_id = model_id
+        loaded_model_id = "model3"
 
-        # Load metrics if available
         metrics_file = RESULTS_DIR / model_id / "metrics_indobert.csv"
         if metrics_file.exists():
             with open(metrics_file, "r") as f:
