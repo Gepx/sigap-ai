@@ -75,14 +75,25 @@ export function LoginForm({
         redirect: false,
       });
       if (res?.error) {
-        toast.error(res.code ?? "Invalid credentials. Please try again.");
+        // Handle custom CredentialsSignin codes
+        if (res.code === "Unverified Email" || res.error === "UnverifiedEmailError" || res.error === "Unverified Email") {
+          toast.error("Please verify your email address to continue.");
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        } else {
+          toast.error(res.code ?? "Invalid credentials. Please try again.");
+        }
       } else {
         toast.success("Login Success");
         router.push(callbackUrl ?? "/app");
       }
     } catch (error: unknown) {
       if (error instanceof AuthError) {
-        toast.error(error.name);
+        if (error.name === "UnverifiedEmailError" || error.message.includes("Unverified Email")) {
+          toast.error("Please verify your email address to continue.");
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        } else {
+          toast.error(error.name.replace("Error", ""));
+        }
       } else {
         toast.error("An unexpected error occurred during login.");
       }

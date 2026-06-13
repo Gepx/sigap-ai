@@ -2,7 +2,7 @@ import { ISessionPermission } from "@/app/types/next.auth";
 import NextAuth, { NextAuthConfig, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
-import { InvalidCredentialsError, InvalidUserError } from "./error";
+import { InvalidCredentialsError, InvalidUserError, UnverifiedEmailError } from "./error";
 
 export const BASE_PATH = "/api/auth";
 
@@ -51,6 +51,9 @@ const authOptions: NextAuthConfig = {
 
         if (res.status === 401) {
           throw new InvalidCredentialsError();
+        }
+        if (res.status === 403) {
+          throw new UnverifiedEmailError();
         }
         if (res.status === 404) {
           throw new InvalidUserError();

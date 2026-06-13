@@ -19,6 +19,8 @@ export const updateUserBodySchema = z.object({
 
 export const updateProfileBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
+  business_name: z.string().nullable().optional(),
+  business_type: z.string().nullable().optional(),
   avatar: z.string().nullable().optional(),
 });
 

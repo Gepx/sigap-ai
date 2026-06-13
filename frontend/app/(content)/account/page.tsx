@@ -1,19 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Building2, ChevronDown, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import api from "@/lib/api";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function AccountPage() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const router = useRouter();
 
   const name = session?.user?.name ?? "Testing User";
   const email = session?.user?.email ?? "test@example.com";
-  const avatar = session?.user?.avatar ?? "";
+  const initialAvatar = session?.user?.avatar ?? "";
+  const [avatar, setAvatar] = useState(initialAvatar);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initials = name
     .split(" ")
@@ -25,9 +31,27 @@ export default function AccountPage() {
   const [fullName, setFullName] = useState(name);
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
+  
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  // You might want to fetch user data on mount to get the business_name and type if they exist
+  useEffect(() => {
+    // If the backend has a 'me' or 'profile' route to fetch current user data, we could call it here.
+    // For now, we can only update the fields.
+    if (session?.user?.name) setFullName(session.user.name);
+    // Let's check if the backend returned business_name in session
+    if ((session?.user as any)?.business_name) setBusinessName((session?.user as any).business_name);
+    if ((session?.user as any)?.business_type) setBusinessType((session?.user as any).business_type);
+  }, [session]);
 
   const businessTypes = [
     "Retail",
@@ -39,6 +63,82 @@ export default function AccountPage() {
     "Education",
     "Other",
   ];
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File size must be less than 2MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setAvatar(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUpdateProfile = async () => {
+    if (!fullName.trim()) return toast.error("Full Name is required");
+    setIsUpdatingProfile(true);
+    try {
+      const response = await api.put("/api/users/profile", {
+        name: fullName,
+        business_name: businessName,
+        business_type: businessType,
+        avatar: avatar,
+      });
+
+      if (response.data?.success) {
+        toast.success("Profile updated successfully!");
+        // Update next-auth session
+        await update({ 
+          name: fullName, 
+          business_name: businessName, 
+          business_type: businessType,
+          avatar: avatar
+        });
+        router.refresh();
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Failed to update profile");
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return toast.error("Please fill in all password fields");
+    }
+    if (newPassword !== confirmPassword) {
+      return toast.error("New password and confirmation do not match");
+    }
+    
+    setIsChangingPassword(true);
+    try {
+      const response = await api.post("/api/users/change-password", {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (response.data?.success) {
+        toast.success("Password changed successfully!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Failed to change password");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   return (
     <div className="relative min-h-[calc(100svh-2rem)] overflow-hidden bg-[#F4F9F6] px-4 py-6 sm:px-6 lg:px-8">
@@ -93,9 +193,17 @@ export default function AccountPage() {
                 <p className="mt-1 text-xs text-[#1A2E26]/50">
                   Drag and drop an image here, or click to browse.
                 </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleAvatarChange}
+                />
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => fileInputRef.current?.click()}
                   className="mt-3 rounded-full border-[#00B074]/20 text-[#007A51] hover:bg-[#E8FFF4]"
                 >
                   Choose File
@@ -174,8 +282,12 @@ export default function AccountPage() {
             </div>
 
             <div className="mt-6 flex justify-end">
-              <Button className="rounded-full bg-[#1A2E26] text-white hover:bg-[#1A2E26]/90">
-                Save Changes
+              <Button 
+                onClick={handleUpdateProfile} 
+                disabled={isUpdatingProfile}
+                className="rounded-full bg-[#1A2E26] text-white hover:bg-[#1A2E26]/90"
+              >
+                {isUpdatingProfile ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
@@ -199,6 +311,8 @@ export default function AccountPage() {
                 <Input
                   type={showCurrentPw ? "text" : "password"}
                   placeholder="••••••••"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   className="pl-10 pr-10"
                 />
                 <button
@@ -225,6 +339,8 @@ export default function AccountPage() {
                 <Input
                   type={showNewPw ? "text" : "password"}
                   placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-10 pr-10"
                 />
                 <button
@@ -251,6 +367,8 @@ export default function AccountPage() {
                 <Input
                   type={showConfirmPw ? "text" : "password"}
                   placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 pr-10"
                 />
                 <button
@@ -268,8 +386,12 @@ export default function AccountPage() {
             </div>
 
             <div className="mt-6 flex justify-end">
-              <Button className="rounded-full bg-[#1A2E26] text-white hover:bg-[#1A2E26]/90">
-                Update Password
+              <Button 
+                onClick={handleChangePassword} 
+                disabled={isChangingPassword}
+                className="rounded-full bg-[#1A2E26] text-white hover:bg-[#1A2E26]/90"
+              >
+                {isChangingPassword ? "Updating..." : "Update Password"}
               </Button>
             </div>
           </div>

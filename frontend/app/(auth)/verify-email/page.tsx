@@ -1,0 +1,35 @@
+"use client";
+
+import { Suspense } from "react";
+import { VerifyEmailForm } from "@/components/auth/verify-email-form";
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { motion } from "motion/react";
+import { Loader2 } from "lucide-react";
+
+export default function VerifyEmailPage() {
+  return (
+    <BackgroundBeamsWithCollision className="min-h-svh bg-[#F4F9F6] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,176,116,0.18),transparent_28%),linear-gradient(180deg,#F4F9F6_0%,#FBFFFC_60%,#ECF5F0_100%)] z-0" />
+      <div className="absolute right-[-5rem] top-8 size-72 rounded-full bg-[#00B074]/12 blur-3xl z-0" />
+      <div className="absolute bottom-[-6rem] left-1/4 size-[28rem] rounded-full bg-[#1A2E26]/8 blur-3xl z-0" />
+
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00B074]/35 to-transparent z-10" />
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full max-w-xl z-20"
+      >
+        <Suspense
+          fallback={
+            <div className="flex w-full items-center justify-center p-10">
+              <Loader2 className="size-8 animate-spin text-[#00B074]" />
+            </div>
+          }
+        >
+          <VerifyEmailForm />
+        </Suspense>
+      </motion.div>
+    </BackgroundBeamsWithCollision>
+  );
+}

@@ -143,7 +143,7 @@ export default function UploadContent({
           ) : (
             <div className="overflow-hidden rounded-[1.75rem] border border-[#00B074]/15 bg-[#FBFFFC] shadow-sm">
               <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 min-w-0">
                   <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-[#E8FFF4] text-[#00B074] shadow-sm">
                     <FileText className="size-6" />
                   </div>

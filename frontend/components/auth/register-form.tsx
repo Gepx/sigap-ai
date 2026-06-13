@@ -54,11 +54,11 @@ export function RegisterForm({
       errorHandler(err);
       toast.error("Error creating account");
     },
-    onSuccess: () => {
-      toast.success("Account successfully registered!");
+    onSuccess: (data, variables) => {
+      toast.success("Account successfully registered! Please check your email.");
       reset();
 
-      router.push(callbackUrl ?? "/login");
+      router.push(`/verify-email?email=${encodeURIComponent(variables.email)}`);
     },
   });
 

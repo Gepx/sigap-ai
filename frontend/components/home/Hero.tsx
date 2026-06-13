@@ -111,7 +111,7 @@ function AppPreview() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               {[
-                ["Accuracy", "88.6%", TrendingUp],
+                ["Accuracy", "80.0%", TrendingUp],
                 ["Response", "< 500ms", CheckCircle2],
                 ["Risk alerts", "12", AlertTriangle],
               ].map(([label, value, Icon]) => (

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import ProcessingView from "@/components/app/processing-view";
 import DashboardView from "@/components/app/dashboard/dashboard-view";
 import api from "@/lib/api";
 import { Loader2 } from "lucide-react";
@@ -16,10 +15,8 @@ export default function AnalysisPage({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const isNew = searchParams.get("new") === "true";
 
-  const [isProcessing, setIsProcessing] = useState(isNew);
-  const [isLoading, setIsLoading] = useState(!isNew);
+  const [isLoading, setIsLoading] = useState(true);
   const [analysis, setAnalysis] = useState<any>(null);
   const [dashboardData, setDashboardData] = useState<any>(null);
 
@@ -52,19 +49,6 @@ export default function AnalysisPage({
         .finally(() => setIsLoading(false));
     });
   }, [params]);
-
-  if (isProcessing) {
-    return (
-      <ProcessingView
-        fileName={analysis?.file_name || "document"}
-        onComplete={() => {
-          setIsProcessing(false);
-          // Strip ?new=true from the URL so refresh doesn't replay animation
-          router.replace(pathname);
-        }}
-      />
-    );
-  }
 
   if (isLoading) {
     return (

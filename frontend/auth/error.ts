@@ -11,3 +11,7 @@ export class InvalidUserError extends CredentialsSignin {
 export class InvalidCredentialsError extends CredentialsSignin {
   code = "Invalid Credentials";
 }
+
+export class UnverifiedEmailError extends CredentialsSignin {
+  code = "Unverified Email";
+}

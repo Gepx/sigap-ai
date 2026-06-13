@@ -4,6 +4,8 @@ import {
   registerController,
   forgotPasswordController,
   logoutController,
+  verifyEmailController,
+  resendVerificationController,
 } from "../controllers/auth.controller.js";
 import { validateSchema } from "../middlewares/validate.middleware.js";
 import {
@@ -29,5 +31,7 @@ AuthRouter.post(
   validateSchema(forgotPasswordSchema, "body"),
   forgotPasswordController,
 );
+AuthRouter.post("/verify-email", authLimiter, verifyEmailController);
+AuthRouter.post("/resend-verification", authLimiter, resendVerificationController);
 
 export default AuthRouter;

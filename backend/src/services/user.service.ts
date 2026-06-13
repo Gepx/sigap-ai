@@ -7,6 +7,7 @@ import type {
 } from "../schemas/user.schema.js";
 import type { PaginationInterfaceHelper } from "../utils/queryHelper.js";
 import bcrypt from "bcrypt";
+import { supabase } from "../config/supabase.js";
 
 export const getAllUserService =
   (userModel: UserModel) => async (query: PaginationInterfaceHelper) => {
@@ -100,7 +101,43 @@ export const updateUserService =
 export const updateUserProfileService =
   (userModel: UserModel) =>
   async (email: string, payload: UpdateProfileBodySchema) => {
-    const user = await userModel.updateUserProfile(email, payload);
+    let finalAvatar = payload.avatar;
+
+    if (finalAvatar && finalAvatar.startsWith("data:image/")) {
+      try {
+        const matches = finalAvatar.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches && matches.length === 3 && matches[1] && matches[2]) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, "base64");
+          
+          const ext = mimeType.split("/")[1] || "png";
+          const uniqueFilename = `avatar-${Date.now()}.${ext}`;
+
+          const { data: storageData, error: storageError } = await supabase.storage
+            .from("datasets")
+            .upload(uniqueFilename, buffer, {
+              contentType: mimeType,
+              upsert: true,
+            });
+
+          if (!storageError && storageData) {
+            const { data: publicUrlData } = supabase.storage
+              .from("datasets")
+              .getPublicUrl(storageData.path);
+            
+            finalAvatar = publicUrlData.publicUrl;
+          } else {
+            console.warn("Failed to upload avatar to Supabase:", storageError);
+          }
+        }
+      } catch (err) {
+        console.error("Error processing avatar upload:", err);
+      }
+    }
+
+    const newPayload = { ...payload, avatar: finalAvatar };
+    const user = await userModel.updateUserProfile(email, newPayload);
 
     if (!user) {
       throw new AppError("Failed to update user profile", 400);

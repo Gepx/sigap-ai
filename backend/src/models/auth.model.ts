@@ -29,4 +29,16 @@ export class AuthModel extends BaseModel {
     const user = result.rows[0] as User;
     return user;
   }
+
+  async updateVerificationCode(email: string, code: string, expiresAt: Date) {
+    const query = `UPDATE users SET verification_code = $1, verification_code_expires_at = $2 WHERE email = $3 RETURNING *`;
+    const result = await this._db.query(query, [code, expiresAt, email]);
+    return result.rows[0] as User;
+  }
+
+  async verifyUser(email: string) {
+    const query = `UPDATE users SET is_verified = TRUE, verification_code = NULL, verification_code_expires_at = NULL WHERE email = $1 RETURNING *`;
+    const result = await this._db.query(query, [email]);
+    return result.rows[0] as User;
+  }
 }

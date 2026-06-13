@@ -7,6 +7,11 @@ import type {
 } from "../schemas/auth.schema.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/tokenHelper.js";
+import { sendVerificationEmail } from "./email.service.js";
+
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 export const registerService =
   (authModel: AuthModel) => async (payload: RegisterSchema) => {
@@ -27,10 +32,16 @@ export const registerService =
       throw new AppError("Failed to register", 400);
     }
 
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await authModel.updateVerificationCode(newUser.email, otp, expiresAt);
+    await sendVerificationEmail(newUser.email, otp);
+
     const { password: _, ...safeUser } = newUser;
 
     return {
       user: safeUser,
+      message: "Registration successful. Please verify your email.",
     };
   };
 
@@ -52,6 +63,10 @@ export const loginService =
 
     if (!isPasswordValid) {
       throw new AppError("Invalid credentials", 401);
+    }
+
+    if (!user.is_verified) {
+      throw new AppError("Please verify your email address to continue", 403);
     }
 
     const token = generateToken({
@@ -105,5 +120,64 @@ export const forgotPasswordService =
 
     return {
       user: safeUser,
+    };
+  };
+
+export const verifyEmailService =
+  (authModel: AuthModel) => async (email: string, code: string) => {
+    const user = await authModel.findUser(email);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.is_verified) {
+      throw new AppError("Email is already verified", 400);
+    }
+
+    if (!user.verification_code || user.verification_code !== code) {
+      throw new AppError("Invalid verification code", 400);
+    }
+
+    if (!user.verification_code_expires_at || user.verification_code_expires_at < new Date()) {
+      throw new AppError("Verification code has expired", 400);
+    }
+
+    const verifiedUser = await authModel.verifyUser(email);
+
+    const token = generateToken({
+      uuid: verifiedUser.uuid,
+      name: verifiedUser.name,
+      email: verifiedUser.email,
+      role_id: verifiedUser.role_id,
+    });
+
+    const { password: _, ...safeUser } = verifiedUser;
+
+    return {
+      user: safeUser,
+      token,
+    };
+  };
+
+export const resendVerificationService =
+  (authModel: AuthModel) => async (email: string) => {
+    const user = await authModel.findUser(email);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.is_verified) {
+      throw new AppError("Email is already verified", 400);
+    }
+
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await authModel.updateVerificationCode(email, otp, expiresAt);
+    await sendVerificationEmail(email, otp);
+
+    return {
+      message: "Verification code sent to your email",
     };
   };

@@ -10,6 +10,8 @@ import {
   BarChart,
   Bar,
   Legend,
+  AreaChart,
+  Area,
 } from "recharts";
 
 const COLORS = {
@@ -137,7 +139,7 @@ export default function DashboardCharts({
             </div>
             <div className="h-[260px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
+                <AreaChart
                   data={chartTimeSeries}
                   margin={{ top: 10, right: 20, bottom: 5, left: 0 }}
                 >
@@ -169,28 +171,31 @@ export default function DashboardCharts({
                     iconType="circle"
                     wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
                   />
-                  <Bar
+                  <Area
+                    type="monotone"
                     dataKey="negative"
                     name="Negative"
-                    fill={COLORS.negative}
                     stackId="a"
-                    radius={[0, 0, 4, 4]}
+                    stroke={COLORS.negative}
+                    fill={COLORS.negative}
                   />
-                  <Bar
+                  <Area
+                    type="monotone"
                     dataKey="neutral"
                     name="Neutral"
-                    fill={COLORS.neutral}
                     stackId="a"
-                    radius={[0, 0, 0, 0]}
+                    stroke={COLORS.neutral}
+                    fill={COLORS.neutral}
                   />
-                  <Bar
+                  <Area
+                    type="monotone"
                     dataKey="positive"
                     name="Positive"
-                    fill={COLORS.positive}
                     stackId="a"
-                    radius={[4, 4, 0, 0]}
+                    stroke={COLORS.positive}
+                    fill={COLORS.positive}
                   />
-                </BarChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>

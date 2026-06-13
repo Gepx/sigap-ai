@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import UploadContent from "@/components/app/upload-content";
+import ProcessingView from "@/components/app/processing-view";
 import api from "@/lib/api";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
@@ -10,8 +11,10 @@ import { toast } from "sonner";
 export default function AppPage() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleUpload = async (file: File) => {
+    setSelectedFile(file);
     setIsProcessing(true);
     try {
       const formData = new FormData();
@@ -23,7 +26,7 @@ export default function AppPage() {
 
       if (response.data && response.data.status === "success") {
         const session_id = response.data.session_id;
-        router.push(`/app/${session_id}?new=true`);
+        router.push(`/app/${session_id}`);
       } else {
         toast.error("Failed to initialize analysis.");
         setIsProcessing(false);
@@ -48,6 +51,15 @@ export default function AppPage() {
       setIsProcessing(false);
     }
   };
+
+  if (isProcessing) {
+    return (
+      <ProcessingView
+        fileName={selectedFile?.name || "document"}
+        onComplete={() => {}}
+      />
+    );
+  }
 
   return <UploadContent onUpload={handleUpload} isProcessing={isProcessing} />;
 }
