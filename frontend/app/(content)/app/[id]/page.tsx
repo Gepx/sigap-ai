@@ -21,6 +21,7 @@ export default function AnalysisPage({
   const [isProcessing, setIsProcessing] = useState(isNew);
   const [isLoading, setIsLoading] = useState(!isNew);
   const [analysis, setAnalysis] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
   useEffect(() => {
     params.then((p) => {
@@ -29,7 +30,20 @@ export default function AnalysisPage({
         .get(`/api/ai/history/${p.id}`)
         .then((res) => {
           if (res.data && res.data.success) {
-            setAnalysis(res.data.data);
+            const rawAnalysis = res.data.data;
+            setAnalysis(rawAnalysis);
+            if (rawAnalysis.detail) {
+              try {
+                // Try parsing the detail column. If it's old data like "Analysis created", this will throw.
+                const parsed = JSON.parse(rawAnalysis.detail);
+                if (parsed && typeof parsed === 'object') {
+                  setDashboardData(parsed);
+                }
+              } catch (e) {
+                // Silently ignore parse errors for old records to avoid Next.js error overlays.
+                // For old records, dashboardData will remain null.
+              }
+            }
           }
         })
         .catch((err) =>
@@ -66,6 +80,7 @@ export default function AnalysisPage({
   return (
     <DashboardView
       analysis={analysis}
+      dashboardData={dashboardData}
       fileName={analysis?.file_name || "document"}
     />
   );

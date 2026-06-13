@@ -17,9 +17,19 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/app/nav-user";
-import { Sparkles, SquarePen, Search, MoreHorizontal, Trash2, Edit2, Check, X } from "lucide-react";
+import {
+  Sparkles,
+  SquarePen,
+  Search,
+  MoreHorizontal,
+  Trash2,
+  Edit2,
+  Check,
+  X,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
+import { toast } from "sonner";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import {
   DropdownMenu,
@@ -33,7 +43,6 @@ interface HistoryItem {
   title: string;
   detail: string;
 }
-
 
 function SidebarHoverTrigger() {
   const { isMobile, state } = useSidebar();
@@ -55,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [historyItems, setHistoryItems] = React.useState<HistoryItem[]>([]);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editTitle, setEditTitle] = React.useState("");
-  
+
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -63,14 +72,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isNewChat = pathname === "/app";
 
   React.useEffect(() => {
-    api.get("/api/ai/history")
-      .then(res => {
+    api
+      .get("/api/ai/history")
+      .then((res) => {
         if (res.data && res.data.success) {
           setHistoryItems(res.data.data);
         }
       })
-      .catch(err => console.error("Failed to fetch history", err));
-  }, []);
+      .catch((err) => console.error("Failed to fetch history", err));
+  }, [pathname]);
 
   const handleRename = (uuid: string, currentTitle: string) => {
     setEditingId(uuid);
@@ -84,9 +94,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
     try {
       await api.patch(`/api/ai/history/${uuid}`, { title: editTitle });
-      setHistoryItems(prev => prev.map(item => item.uuid === uuid ? { ...item, title: editTitle } : item));
-    } catch (e) {
+      setHistoryItems((prev) =>
+        prev.map((item) =>
+          item.uuid === uuid ? { ...item, title: editTitle } : item,
+        ),
+      );
+    } catch (e: any) {
       console.error(e);
+      toast.error("Gagal mengubah nama", {
+        description:
+          e?.response?.data?.message || "Terjadi kesalahan pada server.",
+      });
     }
     setEditingId(null);
   };
@@ -94,12 +112,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const handleDelete = async (uuid: string) => {
     try {
       await api.delete(`/api/ai/history/${uuid}`);
-      setHistoryItems(prev => prev.filter(item => item.uuid !== uuid));
+      setHistoryItems((prev) => prev.filter((item) => item.uuid !== uuid));
       if (currentId === uuid) {
         router.push("/app");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      toast.error("Gagal menghapus riwayat", {
+        description:
+          e?.response?.data?.message || "Terjadi kesalahan pada server.",
+      });
     }
   };
 
@@ -184,7 +206,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {displayHistory.length > 0 ? (
                 <SidebarMenu>
                   {displayHistory.map((item) => (
-                    <SidebarMenuItem key={item.uuid} className="group/item relative">
+                    <SidebarMenuItem
+                      key={item.uuid}
+                      className="group/item relative"
+                    >
                       {editingId === item.uuid ? (
                         <div className="flex h-12 w-full items-center gap-2 px-2">
                           <Input
@@ -197,31 +222,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             }}
                             className="h-8 flex-1 bg-white"
                           />
-                          <button onClick={() => submitRename(item.uuid)} className="text-emerald-600 hover:text-emerald-700"><Check className="size-4" /></button>
-                          <button onClick={() => setEditingId(null)} className="text-slate-400 hover:text-slate-600"><X className="size-4" /></button>
+                          <button
+                            onClick={() => submitRename(item.uuid)}
+                            className="text-emerald-600 hover:text-emerald-700"
+                          >
+                            <Check className="size-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="text-slate-400 hover:text-slate-600"
+                          >
+                            <X className="size-4" />
+                          </button>
                         </div>
                       ) : (
                         <div className="flex w-full items-center pr-2">
                           <SidebarMenuButton
                             asChild
                             className={`h-auto flex-1 py-2 pr-8 ${
-                              currentId === item.uuid || (isNewChat && item.uuid === "new-chat-temp")
+                              currentId === item.uuid ||
+                              (isNewChat && item.uuid === "new-chat-temp")
                                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                                 : ""
                             }`}
                           >
-                            <Link href={item.uuid === "new-chat-temp" ? "/app" : `/app/${item.uuid}`}>
+                            <Link
+                              href={
+                                item.uuid === "new-chat-temp"
+                                  ? "/app"
+                                  : `/app/${item.uuid}`
+                              }
+                            >
                               <div className="grid gap-0.5 text-left pr-6">
                                 <span className="truncate text-sm font-medium">
                                   {item.title}
                                 </span>
                                 <span className="truncate text-xs text-muted-foreground">
-                                  {item.detail}
+                                  {item.detail.startsWith("{")
+                                    ? "Processed CSV"
+                                    : item.detail}
                                 </span>
                               </div>
                             </Link>
                           </SidebarMenuButton>
-                          
+
                           {item.uuid !== "new-chat-temp" && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -230,11 +274,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-40">
-                                <DropdownMenuItem onClick={() => handleRename(item.uuid, item.title)}>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleRename(item.uuid, item.title)
+                                  }
+                                >
                                   <Edit2 className="mr-2 size-4" />
                                   Rename
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDelete(item.uuid)} className="text-rose-600 focus:text-rose-600">
+                                <DropdownMenuItem
+                                  onClick={() => handleDelete(item.uuid)}
+                                  className="text-rose-600 focus:text-rose-600"
+                                >
                                   <Trash2 className="mr-2 size-4" />
                                   Delete
                                 </DropdownMenuItem>

@@ -12,7 +12,17 @@ import RecommendationCard from "@/components/app/recommendations/recommendation-
 
 type RecommendationState = "idle" | "processing" | "completed" | "error";
 
-export default function RecommendationSection({ warning, analysis }: { warning?: any, analysis?: any }) {
+export default function RecommendationSection({
+  warning,
+  analysis,
+  recommendation,
+  dashboardData,
+}: {
+  warning?: any;
+  analysis?: any;
+  recommendation?: any;
+  dashboardData?: any;
+}) {
   const [state, setState] = useState<RecommendationState>("idle");
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -20,17 +30,40 @@ export default function RecommendationSection({ warning, analysis }: { warning?:
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (analysis?.recommendation && state === "idle") {
+    const rawRec = recommendation || analysis?.recommendation;
+    if (rawRec && state === "idle") {
       try {
-        let cleanJson = analysis.recommendation.replace(/```json/g, "").replace(/```/g, "").trim();
-        const parsed = JSON.parse(cleanJson);
-        setRecommendations(Array.isArray(parsed) ? parsed : [parsed]);
+        let parsed = rawRec;
+        if (typeof rawRec === "string") {
+          let cleanJson = rawRec
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+          parsed = JSON.parse(cleanJson);
+        }
+
+        if (parsed.action_items && Array.isArray(parsed.action_items)) {
+          const mapped = parsed.action_items.map(
+            (item: string, idx: number) => ({
+              id: `rec-${idx}`,
+              title: `Action Item ${idx + 1}`,
+              description: item,
+              priority: "High",
+              impact: parsed.summary || "Berdasarkan analisis data ulasan.",
+            }),
+          );
+          setRecommendations(mapped);
+        } else if (Array.isArray(parsed)) {
+          setRecommendations(parsed);
+        } else {
+          setRecommendations([parsed]);
+        }
         setState("completed");
       } catch (e) {
         console.error("Failed to parse stored recommendation:", e);
       }
     }
-  }, [analysis?.recommendation]);
+  }, [recommendation, analysis?.recommendation]);
 
   useEffect(() => {
     if (state === "processing") {
@@ -52,40 +85,46 @@ export default function RecommendationSection({ warning, analysis }: { warning?:
     setCurrentStepIndex(0);
     setState("processing");
 
-    if (warning) {
-      try {
-        const response = await api.post(`/api/ai/recommendation`, { 
-          warning,
-          analysisId: analysis?.uuid
-        });
-        
-        const result = response.data;
-        
-        if (result.success && result.data) {
-          try {
-            // Gemini might return stringified JSON with markdown blocks, let's clean it up
-            let cleanJson = result.data.replace(/```json/g, "").replace(/```/g, "").trim();
-            const parsed = JSON.parse(cleanJson);
-            setRecommendations(Array.isArray(parsed) ? parsed : [parsed]);
-          } catch (e) {
-            console.error("Failed to parse RAG JSON:", e, result.data);
-            setRecommendations([{
+    try {
+      const response = await api.post(`/api/ai/recommendation`, {
+        ...(warning ? { warning } : {}),
+        dashboardData: dashboardData || null,
+        analysisId: analysis?.uuid,
+      });
+
+      const result = response.data;
+
+      if (result.success && result.data) {
+        try {
+          let cleanJson = result.data
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+          const parsed = JSON.parse(cleanJson);
+          setRecommendations(Array.isArray(parsed) ? parsed : [parsed]);
+        } catch (e) {
+          console.error("Failed to parse RAG JSON:", e, result.data);
+          setRecommendations([
+            {
               id: "fallback-1",
               title: "AI Response Error",
               priority: "Medium",
               description: result.data,
-              impact: "Raw AI output provided due to formatting error."
-            }]);
-          }
+              impact: "Raw AI output provided due to formatting error.",
+            },
+          ]);
         }
-      } catch (error) {
-        console.error("Error fetching recommendation:", error);
       }
+    } catch (error) {
+      console.error("Error fetching recommendation:", error);
     }
 
-    setTimeout(() => {
-      setState("completed");
-    }, recommendationProcessingSteps.length * 1500 + 1000);
+    setTimeout(
+      () => {
+        setState("completed");
+      },
+      recommendationProcessingSteps.length * 1500 + 1000,
+    );
   };
 
   const handleGenerateDraft = async (rec: any) => {
@@ -93,14 +132,22 @@ export default function RecommendationSection({ warning, analysis }: { warning?:
     setDraftingIds((prev) => ({ ...prev, [recId]: true }));
     try {
       const response = await api.post("/api/ai/draft", {
-        recommendation: { id: rec.id, title: rec.title, description: rec.description },
+        recommendation: {
+          id: rec.id,
+          title: rec.title,
+          description: rec.description,
+        },
         warningContext: warning,
         analysisId: analysis?.uuid,
       });
       if (response.data?.success) {
-        setRecommendations((prev) => prev.map(r => 
-          (r.id === rec.id || r.title === rec.title) ? { ...r, draft: response.data.data } : r
-        ));
+        setRecommendations((prev) =>
+          prev.map((r) =>
+            r.id === rec.id || r.title === rec.title
+              ? { ...r, draft: response.data.data }
+              : r,
+          ),
+        );
       }
     } catch (e) {
       toast.error("Failed to generate draft.");
@@ -132,7 +179,12 @@ export default function RecommendationSection({ warning, analysis }: { warning?:
   }
 
   if (state === "processing") {
-    return <RecommendationProcessing currentStepIndex={currentStepIndex} warning={warning} />;
+    return (
+      <RecommendationProcessing
+        currentStepIndex={currentStepIndex}
+        warning={warning}
+      />
+    );
   }
 
   return (
@@ -150,7 +202,8 @@ export default function RecommendationSection({ warning, analysis }: { warning?:
                 AI recommendation output
               </h2>
               <p className="mt-1 text-sm font-medium text-[#1A2E26]/55">
-                Based on the latest {warning ? "Early Warning trigger" : "sentiment analysis"}
+                Based on the latest{" "}
+                {warning ? "Early Warning trigger" : "sentiment analysis"}
               </p>
             </div>
           </div>

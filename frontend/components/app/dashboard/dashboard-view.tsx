@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import api from "@/lib/api";
+import React from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,19 +10,15 @@ import DashboardCharts from "@/components/app/dashboard/dashboard-charts";
 import RecommendationSection from "@/components/app/recommendations/recommendation-section";
 import ChatWidget from "@/components/app/chat-widget";
 
-export default function DashboardView({ fileName, analysis }: { fileName: string, analysis?: any }) {
-  const [warnings, setWarnings] = useState<any[]>([]);
-
-  useEffect(() => {
-    api.get(`/api/ai/warnings`)
-      .then(res => {
-        if (res.data.success && res.data.data) {
-          setWarnings(res.data.data);
-        }
-      })
-      .catch(err => console.error("Failed to fetch warnings", err));
-  }, []);
-
+export default function DashboardView({
+  fileName,
+  analysis,
+  dashboardData,
+}: {
+  fileName: string;
+  analysis?: any;
+  dashboardData?: any;
+}) {
   return (
     <div className="relative flex min-h-[calc(100svh-2rem)] flex-1 overflow-hidden bg-[#F4F9F6] px-4 py-6 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,176,116,0.16),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(26,46,38,0.08),transparent_28%)]" />
@@ -45,12 +40,33 @@ export default function DashboardView({ fileName, analysis }: { fileName: string
           </Button>
         </div>
 
-        <DashboardWarnings warnings={warnings} />
-        <DashboardMetrics />
-        <DashboardCharts />
-        <RecommendationSection warning={warnings.length > 0 ? warnings[0] : null} analysis={analysis} />
+        <DashboardWarnings warnings={dashboardData?.early_warning || []} />
+        <DashboardMetrics summary={dashboardData?.summary} />
+        <DashboardCharts
+          aspectBreakdown={dashboardData?.aspect_breakdown}
+          channelBreakdown={dashboardData?.channel_breakdown}
+          timeSeriesData={dashboardData?.time_series}
+          wordFreqData={dashboardData?.word_frequency}
+        />
+        <RecommendationSection
+          warning={
+            dashboardData?.early_warning?.length > 0
+              ? dashboardData.early_warning[0]
+              : null
+          }
+          analysis={analysis}
+          dashboardData={dashboardData}
+        />
       </div>
-      <ChatWidget warningContext={warnings.length > 0 ? warnings[0] : null} analysis={analysis} />
+      <ChatWidget
+        warningContext={
+          dashboardData?.early_warning?.length > 0
+            ? dashboardData.early_warning[0]
+            : null
+        }
+        analysis={analysis}
+        dashboardData={dashboardData}
+      />
     </div>
   );
 }

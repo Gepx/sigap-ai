@@ -9,6 +9,7 @@ import api from "@/lib/api";
 interface ChatWidgetProps {
   warningContext?: any;
   analysis?: any;
+  dashboardData?: any;
 }
 
 interface ChatMessage {
@@ -16,14 +17,28 @@ interface ChatMessage {
   content: string;
 }
 
-export default function ChatWidget({ warningContext, analysis }: ChatWidgetProps) {
+export default function ChatWidget({
+  warningContext,
+  analysis,
+  dashboardData,
+}: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    if (analysis?.chat_history) {
-      return analysis.chat_history.map((m: any) => ({
-        role: m.role,
-        content: m.parts?.[0]?.text || "",
-      }));
+    let history = analysis?.chat_history;
+    if (history) {
+      if (typeof history === "string") {
+        try {
+          history = JSON.parse(history);
+        } catch (e) {
+          history = [];
+        }
+      }
+      if (Array.isArray(history)) {
+        return history.map((m: any) => ({
+          role: m.role || "user",
+          content: m.parts?.[0]?.text || m.content || "",
+        }));
+      }
     }
     return [];
   });
@@ -32,16 +47,26 @@ export default function ChatWidget({ warningContext, analysis }: ChatWidgetProps
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (analysis?.chat_history) {
-      setMessages(
-        analysis.chat_history.map((m: any) => ({
-          role: m.role,
-          content: m.parts?.[0]?.text || "",
-        }))
-      );
-    } else {
-      setMessages([]);
+    let history = analysis?.chat_history;
+    if (history) {
+      if (typeof history === "string") {
+        try {
+          history = JSON.parse(history);
+        } catch (e) {
+          history = [];
+        }
+      }
+      if (Array.isArray(history)) {
+        setMessages(
+          history.map((m: any) => ({
+            role: m.role || "user",
+            content: m.parts?.[0]?.text || m.content || "",
+          })),
+        );
+        return;
+      }
     }
+    setMessages([]);
   }, [analysis?.chat_history]);
 
   useEffect(() => {
@@ -55,31 +80,44 @@ export default function ChatWidget({ warningContext, analysis }: ChatWidgetProps
 
     const userMessage = input.trim();
     setInput("");
-    
+
     // Convert current messages to Gemini history format
-    const history = messages.map(m => ({
+    const history = messages.map((m) => ({
       role: m.role,
-      parts: [{ text: m.content }]
+      parts: [{ text: m.content }],
     }));
 
-    setMessages(prev => [...prev, { role: "user", content: userMessage }]);
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
 
     try {
       const response = await api.post("/api/ai/chat", {
         message: userMessage,
         history,
-        warningContext,
+        warningContext: warningContext || null,
+        dashboardData: dashboardData || null,
         analysisId: analysis?.uuid,
       });
 
       if (response.data?.success) {
-        setMessages(prev => [...prev, { role: "model", content: response.data.data }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: "model", content: response.data.data },
+        ]);
       } else {
-        setMessages(prev => [...prev, { role: "model", content: "Sorry, I encountered an error. Please try again." }]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "model",
+            content: "Sorry, I encountered an error. Please try again.",
+          },
+        ]);
       }
     } catch (e) {
-      setMessages(prev => [...prev, { role: "model", content: "Connection error. Please try again later." }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "model", content: "Connection error. Please try again later." },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +136,9 @@ export default function ChatWidget({ warningContext, analysis }: ChatWidgetProps
       {/* Chat Window */}
       <div
         className={`fixed bottom-6 right-6 z-50 flex h-[32rem] w-80 flex-col overflow-hidden rounded-3xl border border-[#1A2E26]/10 bg-white shadow-2xl transition-all duration-300 sm:w-96 ${
-          isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-10 opacity-0"
+          isOpen
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-10 opacity-0"
         }`}
       >
         {/* Header */}
@@ -127,13 +167,11 @@ export default function ChatWidget({ warningContext, analysis }: ChatWidgetProps
               <div className="flex size-12 items-center justify-center rounded-full bg-[#00B074]/10 text-[#00B074] mb-4">
                 <Bot className="size-6" />
               </div>
-              <p className="text-sm font-bold">
-                Hi! I'm your Sigap Analyst.
-              </p>
+              <p className="text-sm font-bold">Hi! I'm your Sigap Analyst.</p>
               <p className="text-sm font-medium text-[#1A2E26]/60 mb-6 mt-1">
                 Ask me anything about this specific data.
               </p>
-              
+
               <div className="flex w-full flex-col gap-2">
                 {[
                   "Summarize the main complaints.",
@@ -157,9 +195,17 @@ export default function ChatWidget({ warningContext, analysis }: ChatWidgetProps
                   key={idx}
                   className={`flex w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div className={`flex max-w-[85%] items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                    <div className={`flex size-6 shrink-0 items-center justify-center rounded-full ${msg.role === "user" ? "bg-[#1A2E26] text-white" : "bg-[#00B074] text-white"}`}>
-                      {msg.role === "user" ? <User className="size-3.5" /> : <Bot className="size-3.5" />}
+                  <div
+                    className={`flex max-w-[85%] items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                  >
+                    <div
+                      className={`flex size-6 shrink-0 items-center justify-center rounded-full ${msg.role === "user" ? "bg-[#1A2E26] text-white" : "bg-[#00B074] text-white"}`}
+                    >
+                      {msg.role === "user" ? (
+                        <User className="size-3.5" />
+                      ) : (
+                        <Bot className="size-3.5" />
+                      )}
                     </div>
                     <div
                       className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${

@@ -1,30 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   BarChart,
   Bar,
   Legend,
-  AreaChart,
-  Area,
 } from "recharts";
-import {
-  sentimentTrendData,
-  channelDistributionData,
-  topThemesData,
-  wordFrequencyData,
-  sentimentOverTimeData,
-} from "@/lib/data";
 
 const COLORS = {
   positive: "#00b074",
@@ -32,31 +18,127 @@ const COLORS = {
   negative: "#f25f5c",
 };
 
-export default function DashboardCharts() {
+interface ChannelBreakdownItem {
+  channel: string;
+  positive: number;
+  negative: number;
+  neutral: number;
+}
+
+export default function DashboardCharts({
+  aspectBreakdown,
+  channelBreakdown,
+  timeSeriesData,
+  wordFreqData,
+}: {
+  aspectBreakdown?: any[];
+  channelBreakdown?: ChannelBreakdownItem[];
+  timeSeriesData?: any[];
+  wordFreqData?: any[];
+}) {
+  const [timeSeriesFilter, setTimeSeriesFilter] = useState("all");
+  const [platformFilter, setPlatformFilter] = useState("all");
+
+  if (!aspectBreakdown) {
+    return (
+      <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 text-center text-[#1A2E26]/55">
+        No chart data available for this analysis. Please try re-uploading the
+        file.
+      </div>
+    );
+  }
+
+  // Fallbacks if data is missing
+  const rawTimeSeries = timeSeriesData || [];
+  const chartWordFreq = wordFreqData || [];
+
+  const now = new Date();
+
+  // Filter for Time Series
+  let chartTimeSeries = [...rawTimeSeries];
+  if (timeSeriesFilter !== "all" && chartTimeSeries.length > 0) {
+    const cutoffTS = new Date(now);
+    if (timeSeriesFilter === "7d") cutoffTS.setDate(now.getDate() - 7);
+    else if (timeSeriesFilter === "1m") cutoffTS.setMonth(now.getMonth() - 1);
+    else if (timeSeriesFilter === "3m") cutoffTS.setMonth(now.getMonth() - 3);
+    else if (timeSeriesFilter === "6m") cutoffTS.setMonth(now.getMonth() - 6);
+    else if (timeSeriesFilter === "1y")
+      cutoffTS.setFullYear(now.getFullYear() - 1);
+
+    chartTimeSeries = chartTimeSeries.filter((item: any) => {
+      return new Date(item.date) >= cutoffTS;
+    });
+  }
+
+  // Filter for Platform Comparison
+  let platformChartData = channelBreakdown || [];
+  if (platformFilter !== "all" && rawTimeSeries.length > 0) {
+    const cutoffPlat = new Date(now);
+    if (platformFilter === "7d") cutoffPlat.setDate(now.getDate() - 7);
+    else if (platformFilter === "1m") cutoffPlat.setMonth(now.getMonth() - 1);
+    else if (platformFilter === "3m") cutoffPlat.setMonth(now.getMonth() - 3);
+    else if (platformFilter === "6m") cutoffPlat.setMonth(now.getMonth() - 6);
+    else if (platformFilter === "1y")
+      cutoffPlat.setFullYear(now.getFullYear() - 1);
+
+    const newChannelMap: Record<
+      string,
+      { positive: number; negative: number; neutral: number; total: number }
+    > = {};
+    rawTimeSeries.forEach((item: any) => {
+      if (new Date(item.date) >= cutoffPlat && item.channels) {
+        Object.keys(item.channels).forEach((channel) => {
+          if (!newChannelMap[channel]) {
+            newChannelMap[channel] = {
+              positive: 0,
+              negative: 0,
+              neutral: 0,
+              total: 0,
+            };
+          }
+          newChannelMap[channel].total += item.channels[channel];
+        });
+      }
+    });
+    platformChartData = Object.keys(newChannelMap).map((channel) => ({
+      channel,
+      ...newChannelMap[channel],
+    }));
+  }
+
   return (
     <>
       <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         {/* LEFT COLUMN */}
         <div className="flex flex-col gap-6 h-full">
-          {/* Line chart */}
-          <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6">
+          {/* Sentiment Volume Trend (Line Chart) */}
+          <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 flex h-[320px] flex-col">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                  Sentiment trend
+                  Sentiment Trend
                 </p>
                 <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
                   Review sentiment over time
                 </h3>
               </div>
-              <span className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
-                Interactive chart
-              </span>
+              <select
+                value={timeSeriesFilter}
+                onChange={(e) => setTimeSeriesFilter(e.target.value)}
+                className="rounded-full bg-[#F4F9F6] border-none px-3 py-1 text-xs font-bold text-[#1A2E26] focus:ring-1 focus:ring-[#00B074]"
+              >
+                <option value="7d">Last 7 Days</option>
+                <option value="1m">Last 1 Month</option>
+                <option value="3m">Last 3 Months</option>
+                <option value="6m">Last 6 Months</option>
+                <option value="1y">Last 1 Year</option>
+                <option value="all">All Time</option>
+              </select>
             </div>
             <div className="h-[260px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={sentimentTrendData}
+                <BarChart
+                  data={chartTimeSeries}
                   margin={{ top: 10, right: 20, bottom: 5, left: 0 }}
                 >
                   <CartesianGrid
@@ -87,74 +169,63 @@ export default function DashboardCharts() {
                     iconType="circle"
                     wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="positive"
-                    name="Positive"
-                    stroke={COLORS.positive}
-                    strokeWidth={3}
-                    dot={{ r: 3, strokeWidth: 2 }}
-                    activeDot={{ r: 5 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="neutral"
-                    name="Neutral"
-                    stroke={COLORS.neutral}
-                    strokeWidth={3}
-                    dot={{ r: 3, strokeWidth: 2 }}
-                    activeDot={{ r: 5 }}
-                  />
-                  <Line
-                    type="monotone"
+                  <Bar
                     dataKey="negative"
                     name="Negative"
-                    stroke={COLORS.negative}
-                    strokeWidth={3}
-                    dot={{ r: 3, strokeWidth: 2 }}
-                    activeDot={{ r: 5 }}
+                    fill={COLORS.negative}
+                    stackId="a"
+                    radius={[0, 0, 4, 4]}
                   />
-                </LineChart>
+                  <Bar
+                    dataKey="neutral"
+                    name="Neutral"
+                    fill={COLORS.neutral}
+                    stackId="a"
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="positive"
+                    name="Positive"
+                    fill={COLORS.positive}
+                    stackId="a"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
-          {/* Sentiment Volume Trend (Area Chart) */}
+          {/* Platform Comparison Trend (Bar Chart) */}
           <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 flex h-[320px] flex-col">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                  Volume
+                  Platform
                 </p>
                 <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
-                  Review volume over time
+                  Review volume by platform
                 </h3>
               </div>
-              <span className="rounded-full bg-[#F4F9F6] px-3 py-1 text-xs font-bold text-[#1A2E26]">
-                4 Weeks
-              </span>
+              <select
+                value={platformFilter}
+                onChange={(e) => setPlatformFilter(e.target.value)}
+                className="rounded-full bg-[#F4F9F6] border-none px-3 py-1 text-xs font-bold text-[#1A2E26] focus:ring-1 focus:ring-[#00B074]"
+              >
+                <option value="7d">Last 7 Days</option>
+                <option value="1m">Last 1 Month</option>
+                <option value="3m">Last 3 Months</option>
+                <option value="6m">Last 6 Months</option>
+                <option value="1y">Last 1 Year</option>
+                <option value="all">All Time</option>
+              </select>
             </div>
             <div className="min-h-0 flex-1 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={sentimentOverTimeData}
+                <BarChart
+                  data={platformChartData}
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
-                  <defs>
-                    <linearGradient id="colorPos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.positive} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={COLORS.positive} stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorNeu" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.neutral} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={COLORS.neutral} stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorNeg" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS.negative} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={COLORS.negative} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
                   <XAxis
-                    dataKey="date"
+                    dataKey="channel"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: "#64756f", fontSize: 12 }}
@@ -165,40 +236,40 @@ export default function DashboardCharts() {
                     tickLine={false}
                     tick={{ fill: "#64756f", fontSize: 12 }}
                   />
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e9f2ed" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#e9f2ed"
+                  />
                   <RechartsTooltip
+                    cursor={{ fill: "rgba(0,176,116,0.05)" }}
                     contentStyle={{
                       borderRadius: 16,
                       border: "1px solid rgba(26,46,38,0.08)",
                       boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
                     }}
                   />
-                  <Area
-                    type="monotone"
+                  <Bar
                     dataKey="positive"
-                    stroke={COLORS.positive}
-                    fillOpacity={1}
-                    fill="url(#colorPos)"
+                    name="Positive"
+                    stackId="a"
+                    fill={COLORS.positive}
+                    radius={[0, 0, 4, 4]}
                   />
-                  <Area
-                    type="monotone"
+                  <Bar
                     dataKey="neutral"
-                    stroke={COLORS.neutral}
-                    fillOpacity={1}
-                    fill="url(#colorNeu)"
+                    name="Neutral"
+                    stackId="a"
+                    fill={COLORS.neutral}
                   />
-                  <Area
-                    type="monotone"
+                  <Bar
                     dataKey="negative"
-                    stroke={COLORS.negative}
-                    fillOpacity={1}
-                    fill="url(#colorNeg)"
+                    name="Negative"
+                    stackId="a"
+                    fill={COLORS.negative}
+                    radius={[4, 4, 0, 0]}
                   />
-                  <Legend
-                    iconType="circle"
-                    wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
-                  />
-                </AreaChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -223,7 +294,7 @@ export default function DashboardCharts() {
           <div className="min-h-0 flex-1 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={wordFrequencyData}
+                data={chartWordFreq}
                 margin={{ top: 20, right: 20, bottom: 10, left: 0 }}
               >
                 <CartesianGrid
@@ -280,150 +351,83 @@ export default function DashboardCharts() {
           </div>
         </div>
       </div>
-
-      {/* BOTTOM SECTION: Themes + Channel Mix (Full Width) */}
-      <div className="flex flex-col gap-6">
-        {/* Horizontal bar chart — themes */}
-        <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 h-[320px]">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                Themes
-              </p>
-              <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
-                Top feedback themes
-              </h3>
-            </div>
-            <span className="rounded-full bg-[#E8FFF4] px-3 py-1 text-xs font-bold text-[#007A51]">
-              Prioritized
-            </span>
+      {/* Aspect Bar Chart */}
+      <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6 flex h-[400px] flex-col">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
+              Aspect mix
+            </p>
+            <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
+              Sentiment by aspect
+            </h3>
           </div>
-          <div className="h-[calc(100%-5rem)] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={topThemesData}
-                layout="vertical"
-                margin={{ top: 0, right: 20, bottom: 0, left: 20 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  horizontal={false}
-                  stroke="#e9f2ed"
-                />
-                <XAxis
-                  type="number"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: "#64756f" }}
-                />
-                <YAxis
-                  dataKey="theme"
-                  type="category"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: "#1a2e26" }}
-                  width={130}
-                />
-                <RechartsTooltip
-                  cursor={{ fill: "#f4f9f6" }}
-                  contentStyle={{
-                    borderRadius: 16,
-                    border: "1px solid rgba(26,46,38,0.08)",
-                    boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
-                  }}
-                />
-                <Bar dataKey="count" radius={[0, 12, 12, 0]}>
-                  {topThemesData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${entry.theme}-${index}`}
-                      fill={COLORS[entry.sentiment as keyof typeof COLORS]}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <span className="rounded-full bg-[#F4F9F6] px-3 py-1 text-xs font-bold text-[#1A2E26]/55">
+            {aspectBreakdown.length}{" "}
+            {aspectBreakdown.length === 1 ? "aspect" : "aspects"}
+          </span>
         </div>
-        {/* Channel donut charts */}
-        <div className="rounded-[1.75rem] border border-[#1A2E26]/10 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-6">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#007A51]">
-                Channel mix
-              </p>
-              <h3 className="mt-2 text-2xl font-black tracking-tight text-[#1A2E26]">
-                Sentiment by channel
-              </h3>
-            </div>
-            <span className="rounded-full bg-[#F4F9F6] px-3 py-1 text-xs font-bold text-[#1A2E26]/55">
-              3 sources
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {channelDistributionData.map((channel) => (
-              <div
-                key={channel.channel}
-                className="rounded-[1.35rem] border border-[#1A2E26]/8 bg-[#FBFFFC] p-4"
-              >
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-black text-[#1A2E26]">
-                      {channel.channel}
-                    </p>
-                    <p className="text-xs text-[#1A2E26]/52">
-                      {channel.data.reduce(
-                        (acc, curr) => acc + curr.value,
-                        0,
-                      )}{" "}
-                      total reviews
-                    </p>
-                  </div>
-                  <div className="flex gap-2 text-xs font-bold text-[#1A2E26]/55">
-                    <span className="rounded-full bg-[#E8FFF4] px-2 py-1 text-[#007A51]">
-                      Positive
-                    </span>
-                    <span className="rounded-full bg-[#FFF8E1] px-2 py-1 text-[#9A7200]">
-                      Neutral
-                    </span>
-                    <span className="rounded-full bg-[#FFF1F1] px-2 py-1 text-[#B43331]">
-                      Negative
-                    </span>
-                  </div>
-                </div>
-                <div className="h-[160px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={channel.data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={48}
-                        outerRadius={68}
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {channel.data.map((entry, index) => (
-                          <Cell
-                            key={`cell-${channel.channel}-${index}`}
-                            fill={entry.color}
-                          />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip
-                        contentStyle={{
-                          borderRadius: 16,
-                          border: "1px solid rgba(26,46,38,0.08)",
-                          boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="min-h-0 flex-1 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={aspectBreakdown}
+              layout="vertical"
+              margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                horizontal={false}
+                stroke="#e9f2ed"
+              />
+              <XAxis
+                type="number"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "#64756f" }}
+              />
+              <YAxis
+                type="category"
+                dataKey="aspect"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "#1a2e26" }}
+                width={120}
+              />
+              <RechartsTooltip
+                cursor={{ fill: "rgba(0,176,116,0.05)" }}
+                contentStyle={{
+                  borderRadius: 16,
+                  border: "1px solid rgba(26,46,38,0.08)",
+                  boxShadow: "0 20px 40px -20px rgba(26,46,38,0.25)",
+                }}
+              />
+              <Legend
+                iconType="circle"
+                wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
+              />
+              <Bar
+                dataKey="positive"
+                name="Positive"
+                stackId="a"
+                fill={COLORS.positive}
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="neutral"
+                name="Neutral"
+                stackId="a"
+                fill={COLORS.neutral}
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="negative"
+                name="Negative"
+                stackId="a"
+                fill={COLORS.negative}
+                radius={[0, 4, 4, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </>

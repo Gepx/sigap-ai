@@ -14,11 +14,14 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface UploadContentProps {
-  onUpload: (fileName: string) => void;
+  onUpload: (file: File) => void;
   isProcessing?: boolean;
 }
 
-export default function UploadContent({ onUpload, isProcessing = false }: UploadContentProps) {
+export default function UploadContent({
+  onUpload,
+  isProcessing = false,
+}: UploadContentProps) {
   const { data: session } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -67,7 +70,7 @@ export default function UploadContent({ onUpload, isProcessing = false }: Upload
 
     setIsConfirming(true);
     toast.success("CSV file uploaded successfully!");
-    onUpload(file.name);
+    onUpload(file);
   };
 
   const fileLabel = file ? `${(file.size / 1024).toFixed(1)} KB` : "CSV only";
@@ -155,8 +158,7 @@ export default function UploadContent({ onUpload, isProcessing = false }: Upload
                       {fileLabel} • Ready to be confirmed for analysis
                     </p>
                   </div>
-                </div>
-
+                </div>{" "}
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
