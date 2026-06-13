@@ -11,7 +11,14 @@ import {
   deleteHistoryController,
   generateDraftController,
   generateChatReplyController,
+  predictSentimentController,
+  predictBatchSentimentController,
+  getModelInfoController,
+  analyzeCsvController,
 } from "../controllers/ai.controller.js";
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage() });
 import {
   recommendationBodySchema,
   historyParamsSchema,
@@ -19,31 +26,44 @@ import {
   updateHistoryBodySchema,
   draftBodySchema,
   chatBodySchema,
+  analyzeCsvBodySchema,
 } from "../schemas/ai.schema.js";
 
 const router = Router();
 
 router.get("/warnings", getWarningsController);
 
+router.post("/predict", predictSentimentController);
+router.post("/predict/batch", predictBatchSentimentController);
+router.get("/model-info", getModelInfoController);
+
+router.post(
+  "/analyze-csv",
+  authMiddleware,
+  upload.single("file"),
+  validateSchema(analyzeCsvBodySchema, "body"),
+  analyzeCsvController,
+);
+
 router.post(
   "/recommendation",
   authMiddleware,
   validateSchema(recommendationBodySchema, "body"),
-  createRecommendationController
+  createRecommendationController,
 );
 
 router.post(
   "/draft",
   authMiddleware,
   validateSchema(draftBodySchema, "body"),
-  generateDraftController
+  generateDraftController,
 );
 
 router.post(
   "/chat",
   authMiddleware,
   validateSchema(chatBodySchema, "body"),
-  generateChatReplyController
+  generateChatReplyController,
 );
 
 router.get("/history", authMiddleware, getHistoryController);
@@ -52,14 +72,14 @@ router.get(
   "/history/:id",
   authMiddleware,
   validateSchema(historyParamsSchema, "params"),
-  getAnalysisByIdController
+  getAnalysisByIdController,
 );
 
 router.post(
   "/history",
   authMiddleware,
   validateSchema(createHistoryBodySchema, "body"),
-  createHistoryController
+  createHistoryController,
 );
 
 router.patch(
@@ -67,14 +87,14 @@ router.patch(
   authMiddleware,
   validateSchema(historyParamsSchema, "params"),
   validateSchema(updateHistoryBodySchema, "body"),
-  updateHistoryController
+  updateHistoryController,
 );
 
 router.delete(
   "/history/:id",
   authMiddleware,
   validateSchema(historyParamsSchema, "params"),
-  deleteHistoryController
+  deleteHistoryController,
 );
 
 export default router;

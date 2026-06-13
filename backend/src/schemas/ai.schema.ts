@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const analyzeCsvBodySchema = z.object({
+  business_context: z.string().min(1, "Business context is required").optional(),
+});
+
 export const recommendationBodySchema = z.object({
   warning: z
     .object({
@@ -7,7 +11,9 @@ export const recommendationBodySchema = z.object({
       severity: z.string().optional(),
       sentiment_score: z.number().optional(),
     })
-    .passthrough(),
+    .passthrough()
+    .optional(),
+  dashboardData: z.any().optional(),
   analysisId: z.uuid().optional(),
 });
 
@@ -27,6 +33,7 @@ export type RecommendationBodySchema = z.infer<typeof recommendationBodySchema>;
 export type HistoryParamsSchema = z.infer<typeof historyParamsSchema>;
 export type CreateHistoryBodySchema = z.infer<typeof createHistoryBodySchema>;
 export type UpdateHistoryBodySchema = z.infer<typeof updateHistoryBodySchema>;
+export type AnalyzeCsvBodySchema = z.infer<typeof analyzeCsvBodySchema>;
 
 export const draftBodySchema = z.object({
   recommendation: z
@@ -50,6 +57,7 @@ export const chatBodySchema = z.object({
     )
     .optional(),
   warningContext: z.any().optional(),
+  dashboardData: z.any().optional(),
   analysisId: z.string().uuid().optional(),
 });
 

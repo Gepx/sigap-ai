@@ -5,7 +5,6 @@ import { mockSOPs, type SOPDocument } from "../utils/mockData.js";
 // Initialize AI
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
-// Private function for retrieval
 const retrieveContext = (topic: string): SOPDocument[] => {
   const topicLower = topic.toLowerCase();
   return mockSOPs.filter(
@@ -13,6 +12,73 @@ const retrieveContext = (topic: string): SOPDocument[] => {
       sop.tags.some((tag) => topicLower.includes(tag)) ||
       sop.title.toLowerCase().includes(topicLower),
   );
+};
+
+// Extract Aspects using Gemini
+export const extractAspectsWithGemini = async (
+  reviews: string[],
+): Promise<string[]> => {
+  if (reviews.length === 0) return [];
+  if (!process.env.GEMINI_API_KEY) {
+    console.warn("GEMINI_API_KEY is not set. Falling back to Lainnya.");
+    return Array(reviews.length).fill("Lainnya");
+  }
+
+  const chunkSize = 500;
+  const allAspects: string[] = [];
+
+  for (let i = 0; i < reviews.length; i += chunkSize) {
+    const chunk = reviews.slice(i, i + chunkSize);
+    const prompt = `
+Categorize each of the following reviews into EXACTLY ONE of these categories: 
+"Rasa & Kualitas", "Pelayanan", "Fasilitas & Suasana", "Harga & Nilai", or "Lainnya".
+Reviews:
+${JSON.stringify(chunk)}
+    `;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "ARRAY",
+            description:
+              "Array of exactly " + chunk.length + " aspect categories.",
+            items: {
+              type: "STRING",
+            },
+          },
+        },
+      });
+      let text = response.text || "[]";
+      text = text
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed) && parsed.length === chunk.length) {
+        allAspects.push(...parsed);
+      } else if (Array.isArray(parsed)) {
+        const mapped = Array.from(
+          { length: chunk.length },
+          (_, idx) => parsed[idx] || "Lainnya",
+        );
+        allAspects.push(...mapped);
+      } else {
+        allAspects.push(...Array(chunk.length).fill("Lainnya"));
+      }
+
+      if (i + chunkSize < reviews.length) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    } catch (e) {
+      console.error("Gemini aspect extraction failed for chunk", e);
+      allAspects.push(...Array(chunk.length).fill("Lainnya"));
+    }
+  }
+  return allAspects;
 };
 
 // Generate Recommendation
@@ -26,45 +92,44 @@ export const generateRecommendation = async (
   // 1. Retrieve Context
   const relevantSOPs = retrieveContext(warning.topic);
 
-  // Fallback if no specific SOP is found
-  if (relevantSOPs.length === 0) {
-    const generalSOP = mockSOPs.find((s) => s.id === "sop-103");
-    if (generalSOP) relevantSOPs.push(generalSOP);
+  let contextText =
+    "No standard operating procedures found for this topic. Please rely entirely on the warning details and your general crisis management knowledge.";
+  if (relevantSOPs.length > 0) {
+    contextText = relevantSOPs
+      .map((sop) => `Document Title: ${sop.title}\nContent: ${sop.content}`)
+      .join("\n\n");
   }
-
-  const contextText = relevantSOPs
-    .map((sop) => `Document Title: ${sop.title}\nContent: ${sop.content}`)
-    .join("\n\n");
 
   // 2. Construct Prompt
   const prompt = `
-You are an expert crisis management AI assistant for a local government or organization.
-An Early Warning has been triggered due to negative public sentiment.
+You are an expert crisis management and business strategy AI assistant.
+An Early Warning has been triggered due to negative sentiment or customer feedback.
 
 WARNING DETAILS:
-- Topic: ${warning.topic}
+- Topic/Category: ${warning.topic}
 - Region: ${warning.region}
 - Severity: ${warning.severity}
 - Negative Sentiment Score: ${warning.triggerData.negative}%
-- Sample Public Comments:
-${warning.triggerData.sampleComments.map((c) => `  * "${c}"`).join("\n")}
+- Sample Customer Comments:
+${warning.triggerData.sampleComments.map((c) => `  - "${c}"`).join("\n")}
 
-STANDARD OPERATING PROCEDURES (CONTEXT):
+CONTEXT DOCUMENTS:
 ${contextText}
 
 TASK:
-Based on the warning details and the provided Standard Operating Procedures context, provide 1-3 actionable recommendations on how the organization should respond to this situation.
-You must output ONLY valid JSON. The JSON must be an array of objects matching this exact schema:
-[
-  {
-    "id": "unique-id-string",
-    "title": "Short title of the recommendation",
-    "priority": "High" | "Medium" | "Low",
-    "description": "Detailed explanation of the action to take.",
-    "impact": "Expected outcome (e.g. 'Mitigates public anger in 24h')"
-  }
-]
-Do NOT wrap the JSON in markdown code blocks like \`\`\`json. Just output the raw JSON array.
+Analyze the warning details, sample comments, and context documents (if any) to provide a strategic recommendation.
+
+Output EXACTLY AND ONLY a JSON array containing 1 to 3 recommendation objects. Do NOT include markdown code blocks (\`\`\`json) or any conversational text.
+
+Each object MUST have:
+- "id": A unique string ID (e.g., "rec-1")
+- "title": A short, actionable title
+- "priority": "High", "Medium", or "Low"
+- "description": A detailed explanation of the steps to take
+- "impact": The expected positive result of this action
+
+Ensure the language of your response matches the language of the sample comments (e.g. use Indonesian if the comments are in Indonesian).
+Ensure your recommendations are highly specific to the Topic/Category (${warning.topic}) and the actual problems mentioned in the Sample Customer Comments. DO NOT generate generic public utility or water shortage recommendations unless the topic is explicitly about water utilities.
 `;
 
   // 3. Generate (Generation)
@@ -72,12 +137,154 @@ Do NOT wrap the JSON in markdown code blocks like \`\`\`json. Just output the ra
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "ARRAY",
+          description: "Array of 1 to 3 recommendation objects.",
+          items: {
+            type: "OBJECT",
+            properties: {
+              id: { type: "STRING" },
+              title: { type: "STRING" },
+              priority: { type: "STRING", enum: ["High", "Medium", "Low"] },
+              description: { type: "STRING" },
+              impact: { type: "STRING" },
+            },
+            required: ["id", "title", "priority", "description", "impact"],
+          },
+        },
+      },
     });
 
-    return response.text || "No recommendation could be generated.";
+    return response.text || "[]";
   } catch (error) {
     console.error("Error generating RAG recommendation:", error);
-    throw new Error("Failed to generate AI recommendation.");
+    // Return a valid fallback JSON instead of throwing 500 so frontend can handle it
+    return JSON.stringify([
+      {
+        id: "fallback-1",
+        title: "Rate Limit Exceeded",
+        priority: "Medium",
+        description:
+          "AI service is currently busy or rate-limited. Please try again in a minute.",
+        impact:
+          "We will be able to provide specific recommendations once the service is available.",
+      },
+    ]);
+  }
+};
+
+// Generate Recommendation from Dashboard Data (no early warning)
+export const generateRecommendationFromDashboard = async (
+  dashboardData: any,
+): Promise<string> => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not set in environment variables.");
+  }
+
+  const summary = dashboardData?.summary || {};
+  const aspects = dashboardData?.aspect_breakdown || [];
+  const channels = dashboardData?.channel_breakdown || [];
+  const earlyWarnings = dashboardData?.early_warning || [];
+
+  const topNegativeAspects = [...aspects]
+    .sort((a: any, b: any) => (b.negative || 0) - (a.negative || 0))
+    .slice(0, 5)
+    .map(
+      (a: any) =>
+        `${a.aspect}: ${a.negative} negative, ${a.positive} positive, ${a.neutral} neutral`,
+    )
+    .join("\n  ");
+
+  // Build channel info
+  const channelInfo = channels
+    .map(
+      (c: any) =>
+        `${c.channel}: ${(c.positive || 0) + (c.negative || 0) + (c.neutral || 0)} reviews`,
+    )
+    .join(", ");
+
+  const sampleComments = earlyWarnings
+    .slice(0, 5)
+    .map((w: any) => w.text)
+    .join("\n  - ");
+
+  const prompt = `
+You are an expert business strategy AI assistant specializing in customer review analysis.
+You have been given a Sentiment Analysis Dashboard with real customer review data.
+
+DASHBOARD SUMMARY:
+- Total reviews analyzed: ${summary.total_reviews || 0}
+- Positive: ${summary.sentiment_distribution?.positive || 0}
+- Neutral: ${summary.sentiment_distribution?.neutral || 0}
+- Negative: ${summary.sentiment_distribution?.negative || 0}
+- Average AI Confidence: ${(summary.average_confidence || 0).toFixed(2)}
+- Crisis-level reviews detected: ${summary.crisis_count || 0}
+
+TOP ASPECTS BY NEGATIVE SENTIMENT:
+  ${topNegativeAspects || "No aspect data available"}
+
+REVIEW SOURCES:
+  ${channelInfo || "Unknown"}
+
+${sampleComments ? `SAMPLE NEGATIVE COMMENTS:\n  - ${sampleComments}` : "No sample comments available."}
+
+TASK:
+Analyze the dashboard data above and provide strategic, actionable business recommendations.
+Your recommendations MUST be specific to the actual data shown above (the aspects, the types of complaints, the business context).
+DO NOT generate recommendations about topics not present in the data (e.g., do NOT mention water shortages, public utilities, etc., unless the data is explicitly about that).
+
+Output EXACTLY AND ONLY a JSON array containing 1 to 3 recommendation objects.
+
+Each object MUST have:
+- "id": A unique string ID (e.g., "rec-1")
+- "title": A short, actionable title
+- "priority": "High", "Medium", or "Low"
+- "description": A detailed explanation of the steps to take
+- "impact": The expected positive result of this action
+
+Ensure the language of your response matches the language of the review data. If the reviews are in Indonesian, respond in Indonesian.
+`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "ARRAY",
+          description: "Array of 1 to 3 recommendation objects.",
+          items: {
+            type: "OBJECT",
+            properties: {
+              id: { type: "STRING" },
+              title: { type: "STRING" },
+              priority: { type: "STRING", enum: ["High", "Medium", "Low"] },
+              description: { type: "STRING" },
+              impact: { type: "STRING" },
+            },
+            required: ["id", "title", "priority", "description", "impact"],
+          },
+        },
+      },
+    });
+
+    return response.text || "[]";
+  } catch (error) {
+    console.error("Error generating dashboard recommendation:", error);
+    return JSON.stringify([
+      {
+        id: "fallback-1",
+        title: "Rate Limit Exceeded",
+        priority: "Medium",
+        description:
+          "AI service is currently busy or rate-limited. Please try again in a minute.",
+        impact:
+          "We will be able to provide specific recommendations once the service is available.",
+      },
+    ]);
   }
 };
 
@@ -121,35 +328,92 @@ export const generateChatReply = async (
   message: string,
   history: any[] = [],
   warningContext?: any,
+  dashboardData?: any,
 ): Promise<string> => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not set in environment variables.");
   }
 
-  const systemPrompt = `You are a helpful Data Analyst & Crisis Management AI. 
-Use the following context to answer the user's questions:
-${warningContext ? JSON.stringify(warningContext, null, 2) : "No specific data context provided."}
-Answer concisely and professionally.`;
+  // Build context from dashboard data if available
+  let dataContext = "";
+  if (dashboardData) {
+    const summary = dashboardData.summary || {};
+    const aspects = dashboardData.aspect_breakdown || [];
+    const channels = dashboardData.channel_breakdown || [];
 
-  // Construct contents array matching Gemini SDK
+    const aspectInfo = aspects
+      .map(
+        (a: any) =>
+          `${a.aspect}: Positive=${a.positive}, Neutral=${a.neutral}, Negative=${a.negative}`,
+      )
+      .join("\n  ");
+
+    const channelInfo = channels
+      .map(
+        (c: any) =>
+          `${c.channel}: Positive=${c.positive}, Neutral=${c.neutral}, Negative=${c.negative}`,
+      )
+      .join("\n  ");
+
+    dataContext = `
+DASHBOARD DATA CONTEXT:
+- Total reviews: ${summary.total_reviews || 0}
+- Sentiment Distribution: Positive=${summary.sentiment_distribution?.positive || 0}, Neutral=${summary.sentiment_distribution?.neutral || 0}, Negative=${summary.sentiment_distribution?.negative || 0}
+- Crisis-level reviews: ${summary.crisis_count || 0}
+- Average Confidence: ${(summary.average_confidence || 0).toFixed(2)}
+
+ASPECTS:
+  ${aspectInfo || "No aspect data"}
+
+REVIEW SOURCES (Platforms):
+  ${channelInfo || "No channel data"}
+`;
+
+    if (
+      dashboardData.sample_reviews &&
+      dashboardData.sample_reviews.length > 0
+    ) {
+      const samplesText = dashboardData.sample_reviews
+        .map(
+          (r: any, i: number) =>
+            `[${i + 1}] Sentiment: ${r.sentiment}, Aspect: ${r.aspect}\n    Text: "${r.text}"`,
+        )
+        .join("\n\n  ");
+
+      dataContext += `\nSAMPLE REVIEWS (for context):\n  ${samplesText}\n`;
+    }
+  }
+
+  if (warningContext) {
+    dataContext += `\nEARLY WARNING CONTEXT:\n${JSON.stringify(warningContext, null, 2)}`;
+  }
+
+  const systemPrompt = `You are a helpful Data Analyst AI assistant called Sigap Analyst. 
+You have access to the following customer review analysis data. Use it to answer the user's questions accurately.
+${dataContext || "No specific data context provided."}
+
+IMPORTANT RULES:
+- ONLY answer based on the data context above. Do NOT make up information about topics not present in the data.
+- If the data is about food/restaurant reviews, answer about food/restaurant topics.
+- If there is no relevant data to answer the question, say so honestly.
+- Answer concisely and professionally.
+- Match the language of the user's question (e.g., respond in Indonesian if asked in Indonesian).`;
+
   const contents: any[] = [
     { role: "user", parts: [{ text: systemPrompt }] },
     {
       role: "model",
       parts: [
         {
-          text: "Understood. I will act as the data analyst and use the provided context.",
+          text: "Understood. I will act as the data analyst and only answer based on the provided dashboard data context.",
         },
       ],
     },
   ];
 
-  // Map incoming history
   for (const h of history) {
     contents.push({ role: h.role, parts: h.parts || [{ text: h.text || "" }] });
   }
-
-  // Add the latest user message
   contents.push({ role: "user", parts: [{ text: message }] });
 
   try {

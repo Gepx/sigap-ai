@@ -11,6 +11,7 @@ import RoleRouter from "./routes/role.route.js";
 import PermissionRouter from "./routes/permission.route.js";
 import UserRouter from "./routes/user.route.js";
 import AiRouter from "./routes/ai.route.js";
+import ReviewItemRouter from "./routes/review_item.route.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use(authMiddleware);
 app.use("/api/roles", RoleRouter);
 app.use("/api/permissions", PermissionRouter);
 app.use("/api/users", UserRouter);
+app.use("/api/review-items", ReviewItemRouter);
 
 app.use(errorHandler);
 

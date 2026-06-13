@@ -61,6 +61,21 @@ export class AnalysisModel extends BaseModel {
     return (result.rows[0] as AnalysisHistory) || null;
   }
 
+  async updateAnalysisDetail(
+    uuid: string,
+    userId: number,
+    detail: string,
+  ): Promise<AnalysisHistory | null> {
+    const query = `
+      UPDATE analysis_history
+      SET detail = $1, updated_at = NOW()
+      WHERE uuid = $2 AND user_id = $3 AND deleted_at IS NULL
+      RETURNING *
+    `;
+    const result = await this._db.query(query, [detail, uuid, userId]);
+    return (result.rows[0] as AnalysisHistory) || null;
+  }
+
   async softDeleteAnalysis(uuid: string, userId: number): Promise<boolean> {
     const query = `
       UPDATE analysis_history

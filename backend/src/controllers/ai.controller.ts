@@ -9,6 +9,10 @@ import {
   deleteHistoryService,
   generateDraftService,
   generateChatReplyService,
+  predictSentimentService,
+  predictBatchSentimentService,
+  getModelInfoService,
+  processCsvAnalysisService,
 } from "../services/ai.service.js";
 import { AnalysisModel } from "../models/ai.model.js";
 import { UserModel } from "../models/user.model.js";
@@ -25,6 +29,57 @@ const getUserFromRequest = async (req: Request) => {
     throw new AppError("User not found", 404);
   }
   return user;
+};
+
+export const predictSentimentController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await predictSentimentService(req.body);
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Prediction successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const predictBatchSentimentController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await predictBatchSentimentService(req.body);
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Batch prediction successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getModelInfoController = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const info = await getModelInfoService();
+    res.status(200).json({
+      success: true,
+      data: info,
+      message: "Model info fetched successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const getWarningsController = (
@@ -225,6 +280,35 @@ export const deleteHistoryController = async (
       success: true,
       message: "Analysis deleted successfully",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const analyzeCsvController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = await getUserFromRequest(req);
+    const analysisModel = new AnalysisModel(pool);
+
+    const file = req.file;
+    if (!file) {
+      throw new AppError("No CSV file uploaded.", 400);
+    }
+
+    const businessContext = req.body.business_context || "Lainnya";
+
+    const result = await processCsvAnalysisService(
+      analysisModel,
+      user.id,
+      businessContext,
+      file,
+    );
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
