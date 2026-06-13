@@ -3,6 +3,7 @@ from pathlib import Path
 
 import torch
 import numpy as np
+import joblib
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from fastapi import FastAPI, HTTPException
@@ -47,27 +48,16 @@ class BatchPredictResponse(BaseModel):
     total: int
 
 
-class IndoBERTModelLoader:
-    def __init__(self, model_repo: str):
-        self.model_repo = model_repo
-        print(f"Downloading/Loading model from Hugging Face: {model_repo}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_repo, use_fast=True)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_repo)
-
-        if torch.backends.mps.is_available():
-            self.model = self.model.to("mps")
-        elif torch.cuda.is_available():
-            self.model = self.model.to("cuda")
-
-        self.model.eval()
-
-        if hasattr(self.model.config, "id2label") and self.model.config.id2label:
-            self.inverse_label_mapping = {
-                int(k): str(v) for k, v in self.model.config.id2label.items()
-            }
-        else:
-            print("Warning: id2label not found in HF config. Using default mapping.")
-            self.inverse_label_mapping = {0: "Negative", 1: "Neutral", 2: "Positive"}
+class JoblibModelLoader:
+    def __init__(self, model_dir: Path):
+        self.model_dir = model_dir
+        print(f"Loading pipeline from {model_dir}...")
+        self.pipeline = joblib.load(model_dir / "logistic_regression_pipeline.joblib")
+        self.label_encoder = joblib.load(model_dir / "label_encoder.joblib")
+        
+        self.inverse_label_mapping = {
+            i: label for i, label in enumerate(self.label_encoder.classes_)
+        }
 
     def _build_text(self, req: PredictRequest) -> str:
         return (
@@ -80,24 +70,11 @@ class IndoBERTModelLoader:
 
     def predict(self, req: PredictRequest) -> PredictResponse:
         text = self._build_text(req)
-        inputs = self.tokenizer(
-            text,
-            truncation=True,
-            padding=True,
-            max_length=128,
-            return_tensors="pt",
-        )
-
-        device = next(self.model.parameters()).device
-        inputs = {k: v.to(device) for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-
-        logits = outputs.logits[0]
-        proba = torch.softmax(logits, dim=-1).cpu().numpy()
+        
+        # predict_proba expects a list/array of texts
+        proba = self.pipeline.predict_proba([text])[0]
         pred_idx = int(np.argmax(proba))
-
+        
         sentiment = self.inverse_label_mapping[pred_idx]
         confidence = float(proba[pred_idx])
         prob_dict = {
@@ -121,16 +98,17 @@ loaded_metrics = {}
 def load_best_model():
     global model_loader, loaded_model_type, loaded_model_id, loaded_metrics
 
-    model_id = "suryahanjaya/sigap-ai"
+    model_id = "model1"
+    model_dir = ARTIFACTS_DIR / model_id
 
     print(f"Loading model: {model_id}")
 
     try:
-        model_loader = IndoBERTModelLoader(model_id)
-        loaded_model_type = "IndoBERT"
-        loaded_model_id = "model3"
+        model_loader = JoblibModelLoader(model_dir)
+        loaded_model_type = "LogisticRegression"
+        loaded_model_id = model_id
 
-        metrics_file = RESULTS_DIR / model_id / "metrics_indobert.csv"
+        metrics_file = RESULTS_DIR / model_id / "metrics_logreg.csv"
         if metrics_file.exists():
             with open(metrics_file, "r") as f:
                 reader = csv.DictReader(f)
@@ -144,7 +122,7 @@ def load_best_model():
 
         print(f"Model loaded: {loaded_model_type} ({loaded_model_id})")
     except Exception as e:
-        print(f"Failed to load IndoBERT model: {e}")
+        print(f"Failed to load Joblib model: {e}")
 
 
 load_best_model()
