@@ -609,8 +609,12 @@ export const processCsvAnalysisService = async (
     .slice(0, 5)
     .map((r) => r.review_text);
 
-  // If the total negative percentage exceeds the threshold, prepend a global warning
-  const globalWarnings = checkWarnings(totalReviews, neg, businessContext || "Keseluruhan", negativeReviews);
+  const globalWarnings = checkWarnings(
+    totalReviews,
+    neg,
+    businessContext || "Keseluruhan",
+    negativeReviews,
+  );
   if (globalWarnings.length > 0) {
     earlyWarnings.unshift(...globalWarnings);
   }
