@@ -44,6 +44,10 @@ app.use("/api/review-items", ReviewItemRouter);
 
 app.use(errorHandler);
 
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
+
 app.listen(PORT, () => {
   console.log(`[SERVER] Running on http://localhost:${PORT}`);
 });
