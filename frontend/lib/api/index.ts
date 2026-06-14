@@ -8,7 +8,7 @@ const isServer = typeof window === "undefined";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 60000,
+  timeout: 600000,
 });
 
 api.interceptors.request.use(

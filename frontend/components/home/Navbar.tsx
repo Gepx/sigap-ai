@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 
@@ -17,9 +18,15 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-[#1A2E26]/10 bg-[#F4F9F6]/85 backdrop-blur-xl">
       <nav className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-2xl bg-[#00B074] text-white shadow-lg shadow-[#00B074]/25">
-            <Sparkles className="size-5" />
-          </span>
+          <div className="relative flex h-8 w-8 items-center justify-center overflow-visible sm:h-10 sm:w-10">
+            <Image
+              src="/green_sigap_logo.png"
+              alt="Sigap.ai Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
           <span className="text-xl font-black tracking-tight text-[#1A2E26]">
             Sigap.ai
           </span>

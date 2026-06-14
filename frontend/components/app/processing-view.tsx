@@ -6,15 +6,16 @@ import { processingSteps } from "@/lib/data";
 
 interface ProcessingViewProps {
   fileName: string;
+  isUploadComplete: boolean;
   onComplete: () => void;
 }
 
 export default function ProcessingView({
   fileName,
+  isUploadComplete,
   onComplete,
 }: ProcessingViewProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,21 +28,22 @@ export default function ProcessingView({
       });
     }, 1500);
 
-    const totalTime = processingSteps.length * 1500 + 1000;
-    const timeout = setTimeout(() => {
-      setIsComplete(true);
-      setTimeout(() => onComplete(), 500);
-    }, totalTime);
+    return () => clearInterval(interval);
+  }, []);
 
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [onComplete]);
+  useEffect(() => {
+    if (isUploadComplete) {
+      const timeout = setTimeout(() => {
+        onComplete();
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [isUploadComplete, onComplete]);
 
-  const progress = Math.round(
+  const rawProgress = Math.round(
     ((currentStepIndex + 1) / processingSteps.length) * 100,
   );
+  const progress = isUploadComplete ? 100 : Math.min(99, rawProgress);
 
   return (
     <div className="relative flex min-h-[calc(100svh-2rem)] flex-1 items-center justify-center overflow-hidden bg-[#F4F9F6] px-4 py-6 sm:px-6 lg:px-8">
@@ -57,7 +59,7 @@ export default function ProcessingView({
             AI processing
           </div>
           <h2 className="mt-5 text-4xl font-black tracking-tight text-[#1A2E26] sm:text-5xl">
-            {isComplete ? "Analysis complete" : "Thinking through the data"}
+            {isUploadComplete ? "Analysis complete" : "Thinking through the data"}
           </h2>
           <p className="mt-4 text-base font-medium leading-8 text-[#1A2E26]/62">
             {fileName} • Sigap.ai is reading the file, normalizing text, and

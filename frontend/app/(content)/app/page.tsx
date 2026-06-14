@@ -11,11 +11,14 @@ import { toast } from "sonner";
 export default function AppPage() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleUpload = async (file: File) => {
     setSelectedFile(file);
     setIsProcessing(true);
+    setUploadComplete(false);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -25,8 +28,8 @@ export default function AppPage() {
       });
 
       if (response.data && response.data.status === "success") {
-        const session_id = response.data.session_id;
-        router.push(`/app/${session_id}`);
+        setSessionId(response.data.session_id);
+        setUploadComplete(true);
       } else {
         toast.error("Failed to initialize analysis.");
         setIsProcessing(false);
@@ -56,7 +59,12 @@ export default function AppPage() {
     return (
       <ProcessingView
         fileName={selectedFile?.name || "document"}
-        onComplete={() => {}}
+        isUploadComplete={uploadComplete}
+        onComplete={() => {
+          if (sessionId) {
+            router.push(`/app/${sessionId}`);
+          }
+        }}
       />
     );
   }
