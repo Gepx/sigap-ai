@@ -13,3 +13,6 @@ dataset/.DS_Store
 ../.DS_Store
 
 *.pt
+
+artifacts/model3/*
+runs/*
