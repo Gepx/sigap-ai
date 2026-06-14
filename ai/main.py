@@ -1,10 +1,9 @@
 import csv
 from pathlib import Path
+import os
 
-import torch
 import numpy as np
 import joblib
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -182,4 +181,5 @@ async def predict_batch(request: BatchPredictRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
