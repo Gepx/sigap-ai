@@ -25,7 +25,7 @@ export const extractAspectsWithGemini = async (
   }
 
   const chunkSize = 500;
-  const allAspects: string[] = [];
+  const chunkPromises: Promise<string[]>[] = [];
 
   for (let i = 0; i < reviews.length; i += chunkSize) {
     const chunk = reviews.slice(i, i + chunkSize);
@@ -36,49 +36,51 @@ Reviews:
 ${JSON.stringify(chunk)}
     `;
 
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "ARRAY",
-            description:
-              "Array of exactly " + chunk.length + " aspect categories.",
-            items: {
-              type: "STRING",
+    const chunkPromise = (async () => {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "ARRAY",
+              description:
+                "Array of exactly " + chunk.length + " aspect categories.",
+              items: {
+                type: "STRING",
+              },
             },
           },
-        },
-      });
-      let text = response.text || "[]";
-      text = text
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
-      const parsed = JSON.parse(text);
-      if (Array.isArray(parsed) && parsed.length === chunk.length) {
-        allAspects.push(...parsed);
-      } else if (Array.isArray(parsed)) {
-        const mapped = Array.from(
-          { length: chunk.length },
-          (_, idx) => parsed[idx] || "Lainnya",
-        );
-        allAspects.push(...mapped);
-      } else {
-        allAspects.push(...Array(chunk.length).fill("Lainnya"));
+        });
+        let text = response.text || "[]";
+        text = text
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+        const parsed = JSON.parse(text);
+        
+        if (Array.isArray(parsed) && parsed.length === chunk.length) {
+          return parsed;
+        } else if (Array.isArray(parsed)) {
+          return Array.from(
+            { length: chunk.length },
+            (_, idx) => parsed[idx] || "Lainnya",
+          );
+        } else {
+          return Array(chunk.length).fill("Lainnya");
+        }
+      } catch (e) {
+        console.error("Gemini aspect extraction failed for chunk", e);
+        return Array(chunk.length).fill("Lainnya");
       }
+    })();
 
-      if (i + chunkSize < reviews.length) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-    } catch (e) {
-      console.error("Gemini aspect extraction failed for chunk", e);
-      allAspects.push(...Array(chunk.length).fill("Lainnya"));
-    }
+    chunkPromises.push(chunkPromise);
   }
-  return allAspects;
+
+  const chunkResults = await Promise.all(chunkPromises);
+  return chunkResults.flat();
 };
 
 // Generate Recommendation

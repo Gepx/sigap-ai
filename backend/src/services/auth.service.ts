@@ -35,7 +35,7 @@ export const registerService =
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await authModel.updateVerificationCode(newUser.email, otp, expiresAt);
-    await sendVerificationEmail(newUser.email, otp);
+    sendVerificationEmail(newUser.email, otp).catch(console.error);
 
     const { password: _, ...safeUser } = newUser;
 
@@ -175,7 +175,7 @@ export const resendVerificationService =
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await authModel.updateVerificationCode(email, otp, expiresAt);
-    await sendVerificationEmail(email, otp);
+    sendVerificationEmail(email, otp).catch(console.error);
 
     return {
       message: "Verification code sent to your email",
