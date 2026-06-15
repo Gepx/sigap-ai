@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Code2, Mail, Sparkles } from "lucide-react";
 
 const team = [
@@ -19,8 +20,14 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-start">
           <div>
             <Link href="/" className="inline-flex items-center gap-3">
-              <span className="flex size-11 items-center justify-center rounded-2xl bg-[#00B074] text-white">
-                <Sparkles className="size-5" />
+              <span className="flex size-11 items-center justify-center">
+                <Image
+                  src="/green_sigap_logo.png"
+                  alt="Sigap AI Logo"
+                  width={44}
+                  height={44}
+                  className="object-contain"
+                />
               </span>
               <span className="text-2xl font-black tracking-tight">
                 Sigap.ai

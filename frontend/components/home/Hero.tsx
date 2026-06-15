@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   AlertTriangle,
   ArrowRight,
@@ -39,8 +40,14 @@ function AppPreview() {
         <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-[0.62fr_1.38fr]">
           <div className="rounded-[1.5rem] border border-[#1A2E26]/8 bg-[#F4F9F6] p-4 shadow-sm">
             <div className="mb-4 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-[#00B074] text-white">
-                <Sparkles className="size-4" />
+              <div className="flex size-10 items-center justify-center">
+                <Image
+                  src="/green_sigap_logo.png"
+                  alt="Sigap AI Logo"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
               </div>
               <div>
                 <p className="text-sm font-black text-[#1A2E26]">SIGAP AI</p>
