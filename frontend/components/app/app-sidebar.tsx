@@ -37,6 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 
 interface HistoryItem {
   uuid: string;
@@ -153,8 +154,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="hover:bg-transparent"
                 >
                   <Link href="/app">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#00B074] text-white">
-                      <Sparkles className="size-4" />
+                    <div className="flex aspect-square size-8 items-center justify-center">
+                      <Image
+                        src="/green_sigap_logo.png"
+                        alt="Sigap AI Logo"
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">SIGAP AI</span>
