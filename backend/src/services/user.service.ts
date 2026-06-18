@@ -115,7 +115,7 @@ export const updateUserProfileService =
           const uniqueFilename = `avatar-${Date.now()}.${ext}`;
 
           const { data: storageData, error: storageError } = await supabase.storage
-            .from("datasets")
+            .from("avatars")
             .upload(uniqueFilename, buffer, {
               contentType: mimeType,
               upsert: true,
@@ -123,16 +123,19 @@ export const updateUserProfileService =
 
           if (!storageError && storageData) {
             const { data: publicUrlData } = supabase.storage
-              .from("datasets")
+              .from("avatars")
               .getPublicUrl(storageData.path);
             
             finalAvatar = publicUrlData.publicUrl;
           } else {
             console.warn("Failed to upload avatar to Supabase:", storageError);
+            throw new AppError("Failed to upload avatar to storage", 500);
           }
         }
       } catch (err) {
+        if (err instanceof AppError) throw err;
         console.error("Error processing avatar upload:", err);
+        throw new AppError("Failed to process avatar upload", 500);
       }
     }
 

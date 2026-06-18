@@ -96,12 +96,14 @@ export default function AccountPage() {
       if (response.data?.success) {
         toast.success("Profile updated successfully!");
         // Update next-auth session
+        const updatedAvatarUrl = response.data?.data?.avatar || avatar;
         await update({ 
           name: fullName, 
           business_name: businessName, 
           business_type: businessType,
-          avatar: avatar
+          avatar: updatedAvatarUrl
         });
+        setAvatar(updatedAvatarUrl);
         router.refresh();
       }
     } catch (e: any) {
@@ -191,7 +193,7 @@ export default function AccountPage() {
               <div>
                 <p className="font-bold text-[#1A2E26]">Profile Avatar Image</p>
                 <p className="mt-1 text-xs text-[#1A2E26]/50">
-                  Drag and drop an image here, or click to browse.
+                  Drag and drop an image here, or click to browse. Max size 2MB.
                 </p>
                 <input
                   type="file"
