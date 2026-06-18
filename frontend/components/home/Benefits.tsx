@@ -10,8 +10,9 @@ import {
   Loader2,
   ShieldAlert,
   Play,
+  X,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 const steps = [
   {
@@ -51,6 +52,7 @@ export default function Benefits() {
   const [simStatus, setSimStatus] = useState<SimulatorStatus>("idle");
   const [activeStep, setActiveStep] = useState(-1);
   const activeStepRef = useRef<HTMLDivElement>(null);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     if (simStatus === "processing") {
@@ -133,7 +135,10 @@ export default function Benefits() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-10 flex items-start"
         >
-          <button className="group flex items-center gap-3 rounded-full border border-[#00B074]/20 bg-[#F4F9F6] py-1.5 pl-1.5 pr-5 transition-all duration-300 hover:border-[#00B074]/30 hover:bg-[#00B074]/10 hover:shadow-md">
+          <button 
+            onClick={() => setIsVideoOpen(true)}
+            className="group flex items-center gap-3 rounded-full border border-[#00B074]/20 bg-[#F4F9F6] py-1.5 pl-1.5 pr-5 transition-all duration-300 hover:border-[#00B074]/30 hover:bg-[#00B074]/10 hover:shadow-md"
+          >
             <span className="flex size-8 items-center justify-center rounded-full bg-[#00B074] text-white shadow-sm transition-transform duration-300 group-hover:scale-110">
               <Play className="ml-1 size-4 fill-current" />
             </span>
@@ -352,6 +357,43 @@ export default function Benefits() {
           </div>
         </motion.div>
       </div>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {isVideoOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A2E26]/80 p-4 backdrop-blur-sm"
+            onClick={() => setIsVideoOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-black shadow-2xl"
+            >
+              <button
+                onClick={() => setIsVideoOpen(false)}
+                className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/80"
+              >
+                <X className="size-5" />
+              </button>
+              <div className="relative pt-[56.25%]">
+                <iframe
+                  className="absolute left-0 top-0 h-full w-full"
+                  src="https://www.youtube.com/embed/zjoBwqDOUzc?autoplay=1"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
