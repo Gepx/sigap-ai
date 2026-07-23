@@ -122,3 +122,6 @@ npx husky init
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+# Horizon Lab - Loom Project Walkthrough
+Link: [Loom](https://www.loom.com/share/6d52f8bfb21d4434b579d6b7c191fd6b)
